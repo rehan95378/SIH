@@ -81,7 +81,10 @@ const localExtract = (documentId, content) => {
 
 const callRemoteModel = async (url, documentId, content, input = {}) => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
+  const timeout = setTimeout(
+    () => controller.abort(),
+    Number(process.env.AI_SERVICE_TIMEOUT_MS || 60000)
+  );
 
   try {
     const response = await fetch(url, {

@@ -5,10 +5,46 @@ machine-learning model is connected.
 """
 
 import re
+import os
 from pathlib import Path
 from typing import Dict, List
 
 MODEL_PATH = Path(__file__).with_name("models") / "ner"
+MODEL_MAX_CHARS = int(os.getenv("NER_CHUNK_SIZE", "12000"))
+_NER = None
+
+
+def _load_model():
+    """Load the optional trained model once, without making it mandatory."""
+    global _NER
+    if _NER is not None:
+        return _NER
+    if not MODEL_PATH.exists() or os.getenv("DISABLE_NER_MODEL") == "1":
+        return None
+    try:
+        import spacy
+        _NER = spacy.load(MODEL_PATH)
+    except (ImportError, OSError, ValueError):
+        return None
+    return _NER
+
+
+def _chunks(content: str, max_chars: int = MODEL_MAX_CHARS):
+    """Split long multi-line documents at whitespace while retaining offsets."""
+    if len(content) <= max_chars:
+        yield content, 0
+        return
+    start = 0
+    while start < len(content):
+        end = min(start + max_chars, len(content))
+        if end < len(content):
+            boundary = content.rfind("\n", start, end)
+            if boundary <= start:
+                boundary = content.rfind(" ", start, end)
+            if boundary > start:
+                end = boundary
+        yield content[start:end], start
+        start = end
 
 
 def _slug(value: str) -> str:
@@ -69,6 +105,27 @@ def extract_entities(document_id: str, content: str) -> List[Dict]:
         _add_entity(entities, seen, document_id, "vehicle", value.upper(), 0.95)
 
     for value in re.findall(
+        r"\b(?:IP\s+)?(?:\d{1,3}\.){3}\d{1,3}\b", content, re.I
+    ):
+        _add_entity(entities, seen, document_id, "ip_address", value, 0.96)
+
+    for value in re.findall(r"https?://[^\s<>()\[\]{}\"']+", content, re.I):
+        _add_entity(entities, seen, document_id, "url", value.rstrip(".,;:"), 0.96)
+
+    for value in re.findall(r"\b(?:[01]\d|2[0-3]):[0-5]\d\b", content):
+        _add_entity(entities, seen, document_id, "time", value, 0.94)
+
+    for value in re.findall(
+        r"\b(?:SHA256|MD5)\s+[a-f0-9]{16,64}\b", content, re.I
+    ):
+        _add_entity(entities, seen, document_id, "hash", value, 0.96)
+
+    for value in re.findall(
+        r"\b(?:FIR|CASE|ECIR|SEIZURE)-[A-Z0-9-]{4,}\b", content, re.I
+    ):
+        _add_entity(entities, seen, document_id, "case_id", value, 0.96)
+
+    for value in re.findall(
         r"(?:₹|Rs\.?|INR)\s?[\d,]+(?:\.\d{1,2})?", content, re.I
     ):
         _add_entity(entities, seen, document_id, "money", value, 0.98)
@@ -120,6 +177,22 @@ def extract_entities(document_id: str, content: str) -> List[Dict]:
     ):
         if not any(word in ignored_words for word in value.split()):
             _add_entity(entities, seen, document_id, "person", value, 0.86)
+
+    model = _load_model()
+    if model:
+        for chunk, offset in _chunks(content):
+            for span in model(chunk).ents:
+                if not span.text.strip():
+                    continue
+                label = span.label_.lower()
+                model_name = re.sub(r"\s+", " ", span.text).strip()
+                if any(
+                    model_name.lower() in entity["name"].lower()
+                    or entity["name"].lower() in model_name.lower()
+                    for entity in entities
+                ):
+                    continue
+                _add_entity(entities, seen, document_id, label, model_name, 0.78)
 
     # Prefer specific types (e.g., person) over location if same name was matched,
     # and prefer the longest version when a full name also produced a shorter span.

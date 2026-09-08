@@ -25,7 +25,9 @@ const getDocument = asyncHandler(async (req, res) => {
 const createDocument = asyncHandler(async (req, res) => {
   const document = await documentService.createDocument({
     ...req.body,
-    createdBy: req.body.created_by || req.user?.id
+    // The authenticated identity is authoritative; clients must not be able
+    // to attribute evidence to another user.
+    createdBy: req.user.id
   });
   return res.status(201).json({ document });
 });

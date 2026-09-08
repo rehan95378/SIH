@@ -38,9 +38,21 @@ def extract_text(
             raise RuntimeError("PDF support requires the pypdf package") from error
         pages = PdfReader(io.BytesIO(raw)).pages
         text = "\n".join(page.extract_text() or "" for page in pages).strip()
-        if not text:
-            raise ValueError("PDF contains no selectable text; use an OCR image PDF")
-        return text
+        if text:
+            return text
+        try:
+            from pdf2image import convert_from_bytes
+            from PIL import Image
+            import pytesseract
+        except ImportError as error:
+            raise RuntimeError(
+                "Scanned PDF support requires pdf2image, pillow, pytesseract, and Poppler"
+            ) from error
+        pages = convert_from_bytes(raw, dpi=200)
+        ocr_text = "\n".join(pytesseract.image_to_string(page) for page in pages).strip()
+        if not ocr_text:
+            raise ValueError("PDF OCR found no readable text")
+        return ocr_text
 
     if clean_mime.startswith("image/"):
         try:

@@ -72,7 +72,7 @@ def calculate_betweenness(
             graph[source].add(target)
             graph[target].add(source)
 
-    scores = defaultdict(float)
+    scores = {node_id: 0.0 for node_id in node_ids}
     for start in node_ids:
         distances = {start: 0}
         paths = {node_id: 0 for node_id in node_ids}
@@ -100,7 +100,7 @@ def calculate_betweenness(
             if current != start:
                 scores[current] += dependencies[current]
 
-    return dict(scores)
+    return scores
 
 
 def suspicious_patterns(

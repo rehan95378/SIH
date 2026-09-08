@@ -10,7 +10,7 @@ import unittest
 from parsers.cdr_parser import parse_cdr
 from parsers.financial_parser import parse_financial_transactions
 from parsers.social_parser import parse_social_connections
-from extract import extract_entities
+from extract import extract_document, extract_entities
 from graph import analyze_graph, calculate_pagerank, calculate_betweenness
 
 
@@ -54,6 +54,7 @@ class TestParsers(unittest.TestCase):
             {"id": "A", "type": "person", "name": "A", "confidence": 1.0},
             {"id": "B", "type": "person", "name": "B", "confidence": 1.0},
             {"id": "C", "type": "person", "name": "C", "confidence": 1.0},
+            {"id": "D", "type": "person", "name": "D", "confidence": 1.0},
         ]
         relationships = [
             {"id": "e1", "source": "A", "target": "B", "relationship_type": "met"},
@@ -64,6 +65,18 @@ class TestParsers(unittest.TestCase):
         self.assertGreater(analytics["betweenness"]["B"], 0)
         self.assertEqual(analytics["betweenness"]["A"], 0)
         self.assertEqual(analytics["betweenness"]["C"], 0)
+        self.assertEqual(analytics["betweenness"]["D"], 0)
+
+    def test_multiline_reports_extract_unseen_structured_values(self):
+        content = (
+            "CASE-NEW-9001\n"
+            "Review completed on 2027-01-19 at 08:30.\n"
+            "Contact new.person@future.test from 203.0.113.55.\n"
+            "Evidence URL https://future.example.test/a and SHA256 abcdef0123456789."
+        )
+        result = extract_document("doc-multiline", content)
+        types = {entity["type"] for entity in result["entities"]}
+        self.assertTrue({"case_id", "time", "ip_address", "url", "hash"} <= types)
 
 
 if __name__ == "__main__":

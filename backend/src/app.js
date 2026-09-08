@@ -20,7 +20,9 @@ const auditRoutes = require('./routes/auditRoutes');
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+// Reports and CSV evidence can legitimately span many lines. Keep this
+// aligned with the multipart upload limit while avoiding Express' tiny default.
+app.use(express.json({ limit: '10mb' }));
 app.use(auditLogger);
 
 app.get('/health', async (req, res, next) => {

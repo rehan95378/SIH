@@ -2,6 +2,7 @@
 
 import json
 import os
+import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Dict
 
@@ -86,7 +87,8 @@ class ExtractionHandler(BaseHTTPRequestHandler):
         except (RuntimeError, OSError) as error:
             self._send_json(503, {"message": str(error)})
         except Exception as error:
-            self._send_json(500, {"message": f"Internal server error: {error}"})
+            print(f"[AI API] unexpected extraction error: {error}", file=sys.stderr)
+            self._send_json(500, {"message": "Internal server error"})
 
     def log_message(self, format: str, *args) -> None:
         """Keep service logs short and readable."""
