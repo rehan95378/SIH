@@ -14,9 +14,10 @@ def parse_social_connections(content: str, document_id: str) -> Dict:
     if not document_id or not isinstance(content, str) or not content.strip():
         raise ValueError("document_id and non-empty content are required")
 
-    rows = csv.DictReader(io.StringIO(content))
+    clean_content = content.lstrip("\ufeff")
+    rows = csv.DictReader(io.StringIO(clean_content))
     required = {"source", "target"}
-    available = {field.strip().lower() for field in (rows.fieldnames or [])}
+    available = {field.strip().lstrip("\ufeff").lower() for field in (rows.fieldnames or [])}
     if not required.issubset(available):
         raise ValueError("social CSV must contain source and target columns")
 
@@ -44,13 +45,13 @@ def parse_social_connections(content: str, document_id: str) -> Dict:
 
     for index, raw_row in enumerate(rows):
         row = {
-            key.strip().lower(): (value or "").strip()
+            key.strip().lstrip("\ufeff").lower(): (value or "").strip()
             for key, value in raw_row.items()
         }
         source_id = add_person(row["source"])
         target_id = add_person(row["target"])
         if source_id == target_id:
-            raise ValueError("social source and target must be different")
+            continue
 
         relationships.append(
             {

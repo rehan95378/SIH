@@ -1,4 +1,4 @@
-// This service validates case data before database access.
+const { randomUUID } = require('crypto');
 const caseRepository = require('../repository/caseRepository');
 
 const statuses = new Set(['open', 'closed', 'archived']);
@@ -22,16 +22,26 @@ const getCase = (id) => {
   return caseRepository.getCaseById(id);
 };
 
-const createCase = async ({ id, title, description, status = 'open', createdBy } = {}) => {
+const createCase = async ({ id = randomUUID(), title, description, status = 'open', createdBy } = {}) => {
   validateText(id, 'id');
   validateText(title, 'title');
   validateStatus(status);
 
-  if (description !== undefined && description !== null) {
-    validateText(description, 'description');
+  if (description !== undefined && description !== null && typeof description !== 'string') {
+    throw new Error('description must be a string.');
   }
 
-  return caseRepository.createCase({ id, title, description, status, createdBy });
+  const cleanDescription = (typeof description === 'string' && description.trim() !== '')
+    ? description.trim()
+    : null;
+
+  return caseRepository.createCase({
+    id,
+    title: title.trim(),
+    description: cleanDescription,
+    status,
+    createdBy
+  });
 };
 
 const changeCaseStatus = async (id, status) => {

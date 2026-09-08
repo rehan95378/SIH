@@ -58,6 +58,8 @@ def extract_entities(document_id: str, content: str) -> List[Dict]:
     for value in re.findall(
         r"(?:\+?\d[\d\s().-]{7,}\d|\b\d{4}[Xx]{6}\b)", content
     ):
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", value.strip()):
+            continue
         _add_entity(entities, seen, document_id, "phone", value, 0.98)
 
     for value in re.findall(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", content, re.I):
@@ -119,14 +121,22 @@ def extract_entities(document_id: str, content: str) -> List[Dict]:
         if not any(word in ignored_words for word in value.split()):
             _add_entity(entities, seen, document_id, "person", value, 0.86)
 
-    # Prefer the longest version when a full name also produced a shorter span.
-    return [
+    # Prefer specific types (e.g., person) over location if same name was matched,
+    # and prefer the longest version when a full name also produced a shorter span.
+    clean_entities = [
         entity for entity in entities
+        if not (
+            entity["type"] == "location"
+            and any(other["type"] == "person" and other["name"].lower() == entity["name"].lower() for other in entities)
+        )
+    ]
+    return [
+        entity for entity in clean_entities
         if not any(
             entity["type"] == other["type"]
             and entity["name"].lower() != other["name"].lower()
             and entity["name"].lower() in other["name"].lower()
-            for other in entities
+            for other in clean_entities
         )
     ]
 

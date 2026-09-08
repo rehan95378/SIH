@@ -26,7 +26,9 @@ const localExtract = (documentId, content) => {
   };
 
   for (const value of content.match(/\+?\d[\d\s().-]{7,}\d/g) || []) {
-    addEntity('phone', value, 0.98);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value.trim())) {
+      addEntity('phone', value, 0.98);
+    }
   }
 
   for (const value of content.match(/\b[A-Z]{2}\d{1,2}[A-Z]{1,3}\d{4}\b/gi) || []) {
@@ -122,8 +124,10 @@ const callAiModel = async ({
   }
 
   if (process.env.AI_SERVICE_URL) {
+    const rawUrl = process.env.AI_SERVICE_URL.trim();
+    const endpoint = rawUrl.endsWith('/extract') ? rawUrl : `${rawUrl.replace(/\/+$/, '')}/extract`;
     return callRemoteModel(
-      process.env.AI_SERVICE_URL,
+      endpoint,
       documentId,
       content,
       {

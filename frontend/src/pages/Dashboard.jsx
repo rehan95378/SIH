@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getAnalytics, getGraph } from '../api/client.js';
 import ReportExport from '../components/ReportExport.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -34,6 +35,7 @@ export default function Dashboard() {
     };
   }, [token]);
 
+  const nodeMap = new Map((data.graph?.nodes || []).map((n) => [n.id, n.name]));
   const topNode = Object.entries(data.analytics?.pagerank || {})
     .sort(([, first], [, second]) => second - first)[0];
   const patterns = data.analytics?.suspicious_patterns || {};
@@ -74,7 +76,7 @@ export default function Dashboard() {
         <article className="metric-card accent">
           <span>Top-ranked entity</span>
           <strong>{topNode ? topNode[1].toFixed(3) : '—'}</strong>
-          <small>{topNode ? topNode[0] : 'No graph data yet'}</small>
+          <small>{topNode ? (nodeMap.get(topNode[0]) || topNode[0]) : 'No graph data yet'}</small>
         </article>
       </div>
 
@@ -89,12 +91,21 @@ export default function Dashboard() {
           </div>
           {patterns.bridge_nodes?.length ? (
             <ul className="simple-list">
-              {patterns.bridge_nodes.slice(0, 5).map((node) => (
-                <li key={node.entity_id}>
-                  <strong>{node.entity_name}</strong>
-                  <span>{node.contact_count} connections</span>
-                </li>
-              ))}
+              {patterns.bridge_nodes.slice(0, 5).map((node, index) => {
+                const id = typeof node === 'string' ? node : (node?.entity_id || `bridge-${index}`);
+                const name = typeof node === 'string'
+                  ? (nodeMap.get(node) || node)
+                  : (node?.entity_name || nodeMap.get(node?.entity_id) || id);
+                const connectionCount = typeof node === 'object' && node?.contact_count != null
+                  ? `${node.contact_count} connections`
+                  : `${(data.graph?.edges?.filter((e) => e.source === id || e.target === id) || []).length} connections`;
+                return (
+                  <li key={id}>
+                    <strong>{name}</strong>
+                    <span>{connectionCount}</span>
+                  </li>
+                );
+              })}
             </ul>
           ) : <p className="muted">No bridge nodes found yet.</p>}
         </article>
@@ -105,7 +116,7 @@ export default function Dashboard() {
             Add a report, PDF, image, CDR, financial file, or social file to
             expand the network.
           </p>
-          <a className="primary-link" href="/ingest">Open upload workspace →</a>
+          <Link className="primary-link" to="/ingest">Open upload workspace →</Link>
         </article>
       </div>
     </section>

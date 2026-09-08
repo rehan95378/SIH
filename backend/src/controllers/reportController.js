@@ -22,7 +22,11 @@ const getReport = asyncHandler(async (req, res) => {
 
 const createReport = asyncHandler(async (req, res) => {
   const report = await reportService.createReport({
-    ...req.body,
+    id: req.body.id,
+    caseId: req.body.case_id || req.body.caseId,
+    documentId: req.body.document_id || req.body.documentId,
+    summary: req.body.summary,
+    status: req.body.status,
     createdBy: req.user.id
   });
   return res.status(201).json({ report });

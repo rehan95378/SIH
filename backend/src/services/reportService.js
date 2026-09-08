@@ -1,4 +1,4 @@
-// This service validates report metadata before database access.
+const { randomUUID } = require('crypto');
 const reportRepository = require('../repository/reportRepository');
 
 const statuses = new Set(['unreviewed', 'reviewed', 'flagged']);
@@ -23,25 +23,41 @@ const getReport = (id) => {
 };
 
 const createReport = async ({
-  id,
+  id = randomUUID(),
   caseId,
+  case_id,
   documentId,
+  document_id,
   summary,
   status = 'unreviewed',
   createdBy
 } = {}) => {
+  const finalDocId = documentId || document_id;
+  const finalCaseId = caseId || case_id;
+
   validateText(id, 'id');
-  validateText(documentId, 'documentId');
+  validateText(finalDocId, 'documentId');
   validateStatus(status);
 
-  if (caseId !== undefined && caseId !== null) validateText(caseId, 'caseId');
-  if (summary !== undefined && summary !== null) validateText(summary, 'summary');
+  if (finalCaseId !== undefined && finalCaseId !== null && typeof finalCaseId !== 'string') {
+    throw new Error('caseId must be a string.');
+  }
+  if (summary !== undefined && summary !== null && typeof summary !== 'string') {
+    throw new Error('summary must be a string.');
+  }
+
+  const cleanCaseId = (typeof finalCaseId === 'string' && finalCaseId.trim() !== '')
+    ? finalCaseId.trim()
+    : null;
+  const cleanSummary = (typeof summary === 'string' && summary.trim() !== '')
+    ? summary.trim()
+    : null;
 
   return reportRepository.createReport({
     id,
-    caseId,
-    documentId,
-    summary,
+    caseId: cleanCaseId,
+    documentId: finalDocId.trim(),
+    summary: cleanSummary,
     status,
     createdBy
   });

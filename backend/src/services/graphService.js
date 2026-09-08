@@ -29,10 +29,7 @@ const buildGraph = async (filters = {}) => {
 const getRelationshipsForEntity = async (entityId, options = {}) => {
   validateId(entityId, 'Entity id');
 
-  return relationshipRepository.listRelationships({
-    ...options,
-    source: entityId
-  });
+  return relationshipRepository.listRelationshipsForEntity(entityId, options);
 };
 
 const createRelationship = async (relationship) => {

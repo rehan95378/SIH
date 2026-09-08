@@ -93,8 +93,26 @@ const createRelationship = async ({
   return result.rows[0];
 };
 
+const listRelationshipsForEntity = async (entityId, { limit = 100, offset = 0 } = {}) => {
+  const pageSize = parsePageValue(limit, 100, 'limit');
+  const pageOffset = parsePageValue(offset, 0, 'offset');
+
+  const result = await pool.query(
+    `SELECT ${selectFields}
+       FROM relationships
+      WHERE source = $1 OR target = $1
+      ORDER BY created_at DESC, id ASC
+      LIMIT $2
+     OFFSET $3`,
+    [entityId, pageSize, pageOffset]
+  );
+
+  return result.rows;
+};
+
 module.exports = {
   listRelationships,
+  listRelationshipsForEntity,
   getRelationshipById,
   createRelationship
 };

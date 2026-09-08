@@ -5,6 +5,10 @@ const colors = {
   location: '#8db7ff',
   phone: '#f4bd72',
   vehicle: '#dd91dd',
+  account: '#f78e69',
+  organization: '#ffd166',
+  money: '#06d6a0',
+  email: '#118ab2',
   default: '#b2c2d4'
 };
 
@@ -22,23 +26,28 @@ export default function GraphView({ nodes = [], edges = [], onSelect }) {
 
   return (
     <div className="graph-view" aria-label="Entity relationship graph">
-      {edges.map((edge) => {
-        const source = byId.get(edge.source);
-        const target = byId.get(edge.target);
-        if (!source || !target) return null;
-        return (
-          <span
-            className="graph-edge"
-            key={edge.id}
-            style={{
-              left: `${source.x}%`,
-              top: `${source.y}%`,
-              width: `${Math.hypot(target.x - source.x, target.y - source.y)}%`,
-              transform: `rotate(${Math.atan2(target.y - source.y, target.x - source.x)}rad)`
-            }}
-          />
-        );
-      })}
+      <svg
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        {edges.map((edge) => {
+          const source = byId.get(edge.source);
+          const target = byId.get(edge.target);
+          if (!source || !target) return null;
+          return (
+            <line
+              key={edge.id}
+              x1={`${source.x}`}
+              y1={`${source.y}`}
+              x2={`${target.x}`}
+              y2={`${target.y}`}
+              stroke="rgba(141, 183, 255, 0.45)"
+              strokeWidth="0.4"
+            />
+          );
+        })}
+      </svg>
       {positions.map((node) => (
         <button
           className="graph-node"

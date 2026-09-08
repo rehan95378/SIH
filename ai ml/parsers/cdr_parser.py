@@ -14,10 +14,11 @@ def parse_cdr(content: str, document_id: str) -> Dict:
     if not document_id or not isinstance(content, str) or not content.strip():
         raise ValueError("document_id and non-empty content are required")
 
-    rows = csv.DictReader(io.StringIO(content))
+    clean_content = content.lstrip("\ufeff")
+    rows = csv.DictReader(io.StringIO(clean_content))
     required = {"caller", "receiver"}
     if not rows.fieldnames or not required.issubset(
-        {field.strip().lower() for field in rows.fieldnames}
+        {field.strip().lstrip("\ufeff").lower() for field in rows.fieldnames}
     ):
         raise ValueError("CDR CSV must contain caller and receiver columns")
 
@@ -44,11 +45,11 @@ def parse_cdr(content: str, document_id: str) -> Dict:
         return entity_ids[phone]
 
     for index, raw_row in enumerate(rows):
-        row = {key.strip().lower(): (value or "").strip() for key, value in raw_row.items()}
+        row = {key.strip().lstrip("\ufeff").lower(): (value or "").strip() for key, value in raw_row.items()}
         caller_id = add_phone(row["caller"])
         receiver_id = add_phone(row["receiver"])
         if caller_id == receiver_id:
-            raise ValueError("caller and receiver must be different phone numbers")
+            continue
         relationships.append(
             {
                 "id": f"{document_id}-call-{index}",

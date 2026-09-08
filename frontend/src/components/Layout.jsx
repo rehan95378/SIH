@@ -7,8 +7,7 @@ const links = [
   { to: '/ingest', label: 'Upload evidence' },
   { to: '/entities', label: 'Entities' },
   { to: '/analytics', label: 'Analytics' },
-  { to: '/cases', label: 'Cases' },
-  { to: '/audit', label: 'Audit log' }
+  { to: '/cases', label: 'Cases' }
 ];
 
 export default function Layout() {
@@ -34,6 +33,14 @@ export default function Layout() {
               {link.label}
             </NavLink>
           ))}
+          {(user?.role === 'admin' || user?.role === 'investigator') && (
+            <NavLink
+              className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+              to="/audit"
+            >
+              Audit log
+            </NavLink>
+          )}
           {user?.role === 'admin' && (
             <NavLink
               className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}

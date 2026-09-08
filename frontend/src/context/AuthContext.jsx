@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState } from 'react';
-import { login as loginRequest } from '../api/client';
+import { login as loginRequest, register as registerRequest } from '../api/client';
 
 const TOKEN_KEY = 'crime-network-token';
 const USER_KEY = 'crime-network-user';
@@ -34,11 +34,21 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const signUp = async (email, password) => {
+    const result = await registerRequest(email, password);
+    window.localStorage.setItem(TOKEN_KEY, result.token);
+    window.localStorage.setItem(USER_KEY, JSON.stringify(result.user));
+    setToken(result.token);
+    setUser(result.user);
+    return result.user;
+  };
+
   const value = useMemo(() => ({
     token,
     user,
     isAuthenticated: Boolean(token),
     signIn,
+    signUp,
     signOut
   }), [token, user]);
 

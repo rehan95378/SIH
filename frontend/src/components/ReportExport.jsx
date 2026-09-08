@@ -5,8 +5,8 @@ export default function ReportExport({ graph, analytics }) {
     const report = {
       exported_at: new Date().toISOString(),
       summary: {
-        entity_count: graph.nodes.length,
-        connection_count: graph.edges.length
+        entity_count: graph?.nodes?.length ?? 0,
+        connection_count: graph?.edges?.length ?? 0,
       },
       graph,
       analytics

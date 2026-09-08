@@ -8,8 +8,8 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const register = asyncHandler(async (req, res) => {
-  const user = await registerUser(req.body);
-  return res.status(201).json({ user });
+  const result = await registerUser(req.body);
+  return res.status(201).json(result);
 });
 
 module.exports = { login, register };

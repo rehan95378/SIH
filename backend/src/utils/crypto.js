@@ -3,7 +3,10 @@ const crypto = require('crypto');
 
 const getTokenSecret = () => {
   const secret = process.env.JWT_SECRET;
-  if (!secret || secret === 'replace-with-a-long-secret') {
+  if (!secret || secret === 'replace-with-a-long-secret' || secret === 'replace-with-a-long-random-secret') {
+    if (process.env.NODE_ENV !== 'production') {
+      return 'dev-jwt-secret-crime-network-local-development-only-32bytes';
+    }
     throw new Error('JWT_SECRET must be configured before authentication is used.');
   }
 

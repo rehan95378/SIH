@@ -20,7 +20,8 @@ export default function SearchPanel({ onSelect }) {
     setBusy(true);
     setError('');
     try {
-      setResults(await search(token, query.trim(), type));
+      const data = await search(token, query.trim(), type);
+      setResults(data.results || []);
     } catch (requestError) {
       setError(requestError.message);
     } finally {

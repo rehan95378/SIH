@@ -1,4 +1,4 @@
-// This service validates report data before it reaches the database.
+const { randomUUID } = require('crypto');
 const documentRepository = require('../repository/documentRepository');
 
 const validateText = (value, fieldName) => {
@@ -14,7 +14,7 @@ const getDocument = (id) => {
   return documentRepository.getDocumentById(id);
 };
 
-const createDocument = async ({ id, title, content, createdBy } = {}) => {
+const createDocument = async ({ id = randomUUID(), title, content, createdBy } = {}) => {
   validateText(id, 'id');
   validateText(title, 'title');
   validateText(content, 'content');
@@ -25,8 +25,8 @@ const createDocument = async ({ id, title, content, createdBy } = {}) => {
 
   return documentRepository.createDocument({
     id,
-    title,
-    content,
+    title: title.trim(),
+    content: content.trim(),
     createdBy
   });
 };

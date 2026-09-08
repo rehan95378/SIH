@@ -23,7 +23,10 @@ const getDocument = asyncHandler(async (req, res) => {
 });
 
 const createDocument = asyncHandler(async (req, res) => {
-  const document = await documentService.createDocument(req.body);
+  const document = await documentService.createDocument({
+    ...req.body,
+    createdBy: req.body.created_by || req.user?.id
+  });
   return res.status(201).json({ document });
 });
 

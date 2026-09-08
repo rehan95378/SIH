@@ -85,6 +85,8 @@ class ExtractionHandler(BaseHTTPRequestHandler):
             self._send_json(400, {"message": str(error)})
         except (RuntimeError, OSError) as error:
             self._send_json(503, {"message": str(error)})
+        except Exception as error:
+            self._send_json(500, {"message": f"Internal server error: {error}"})
 
     def log_message(self, format: str, *args) -> None:
         """Keep service logs short and readable."""
