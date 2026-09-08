@@ -45,13 +45,7 @@ const localExtract = (documentId, content) => {
 
   const personPattern = /\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})?\b/g;
   for (const value of content.match(personPattern) || []) {
-    const alreadyClassified = entities.some(
-      (entity) => entity.name.toLowerCase() === value.toLowerCase()
-    );
-    if (
-      !alreadyClassified
-      && !['The', 'A', 'An', 'This', 'Report', 'Near', 'At', 'In', 'From'].includes(value)
-    ) {
+    if (!['The', 'A', 'An', 'This', 'Report', 'Near', 'At', 'In', 'From'].includes(value)) {
       addEntity('person', value, 0.7);
     }
   }
