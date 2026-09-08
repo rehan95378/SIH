@@ -1,0 +1,6 @@
+# The current MVP uses only Python's standard library.
+# These packages enable PDF extraction and image OCR.
+pypdf>=5.0,<6
+pillow>=10.0,<12
+pytesseract>=0.3.13,<0.4
+spacy>=3.7,<4

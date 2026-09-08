@@ -45,7 +45,13 @@ const localExtract = (documentId, content) => {
 
   const personPattern = /\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})?\b/g;
   for (const value of content.match(personPattern) || []) {
-    if (!['The', 'A', 'An', 'This', 'Report', 'Near', 'At', 'In', 'From'].includes(value)) {
+    const alreadyClassified = entities.some(
+      (entity) => entity.name.toLowerCase() === value.toLowerCase()
+    );
+    if (
+      !alreadyClassified
+      && !['The', 'A', 'An', 'This', 'Report', 'Near', 'At', 'In', 'From'].includes(value)
+    ) {
       addEntity('person', value, 0.7);
     }
   }
@@ -71,7 +77,7 @@ const localExtract = (documentId, content) => {
   };
 };
 
-const callRemoteModel = async (url, documentId, content) => {
+const callRemoteModel = async (url, documentId, content, input = {}) => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
 
@@ -79,7 +85,11 @@ const callRemoteModel = async (url, documentId, content) => {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ document_id: documentId, content }),
+      body: JSON.stringify({
+        document_id: documentId,
+        content,
+        ...input
+      }),
       signal: controller.signal
     });
 
@@ -93,17 +103,43 @@ const callRemoteModel = async (url, documentId, content) => {
   }
 };
 
-const callAiModel = async ({ documentId, content }) => {
+const callAiModel = async ({
+  documentId,
+  content,
+  contentBase64,
+  mimeType,
+  dataType = 'report'
+}) => {
   if (typeof documentId !== 'string' || documentId.trim() === '') {
     throw new Error('documentId must be a non-empty string.');
   }
 
-  if (typeof content !== 'string' || content.trim() === '') {
-    throw new Error('content must be a non-empty string.');
+  if (
+    (typeof content !== 'string' || content.trim() === '')
+    && (typeof contentBase64 !== 'string' || contentBase64.trim() === '')
+  ) {
+    throw new Error('content or contentBase64 must be provided.');
   }
 
   if (process.env.AI_SERVICE_URL) {
-    return callRemoteModel(process.env.AI_SERVICE_URL, documentId, content);
+    return callRemoteModel(
+      process.env.AI_SERVICE_URL,
+      documentId,
+      content,
+      {
+        ...(contentBase64 ? { content_base64: contentBase64 } : {}),
+        ...(mimeType ? { mime_type: mimeType } : {}),
+        data_type: dataType
+      }
+    );
+  }
+
+  if (dataType !== 'report') {
+    throw new Error('AI_SERVICE_URL is required for structured evidence files.');
+  }
+
+  if (typeof content !== 'string' || content.trim() === '') {
+    throw new Error('AI_SERVICE_URL is required for PDF and image uploads.');
   }
 
   return localExtract(documentId, content);

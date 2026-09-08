@@ -10,6 +10,8 @@ const text = (value, field) => {
   }
 };
 
+const supportedDataTypes = new Set(['report', 'cdr', 'financial', 'social']);
+
 const normaliseEntities = (documentId, entities = []) => entities.map((entity, index) => {
   text(entity.name, `entities[${index}].name`);
   text(entity.type, `entities[${index}].type`);
@@ -118,21 +120,44 @@ const processReport = async ({
   id = randomUUID(),
   title,
   content,
+  contentBase64,
+  mimeType = 'text/plain',
+  dataType = 'report',
   createdBy
 } = {}) => {
   text(title, 'title');
-  text(content, 'content');
+  if (!supportedDataTypes.has(dataType)) {
+    throw new Error('dataType must be report, cdr, financial, or social.');
+  }
+  if (
+    (typeof content !== 'string' || content.trim() === '')
+    && (typeof contentBase64 !== 'string' || contentBase64.trim() === '')
+  ) {
+    throw new Error('content or contentBase64 must be provided.');
+  }
   const document = {
     id,
     title,
-    content,
+    content: typeof content === 'string' ? content : '',
     created_by: createdBy || null
   };
 
   const extraction = await callAiModel({
     documentId: document.id,
-    content: document.content
+    content: document.content,
+    contentBase64,
+    mimeType,
+    dataType
   });
+  if (!extraction || !Array.isArray(extraction.entities) || !Array.isArray(extraction.relationships)) {
+    throw new Error('AI service returned an invalid extraction response.');
+  }
+  if (typeof extraction.extracted_text === 'string' && extraction.extracted_text.trim()) {
+    document.content = extraction.extracted_text;
+  }
+  if (typeof document.content !== 'string' || document.content.trim() === '') {
+    throw new Error('AI service returned no extracted text for this document.');
+  }
   const entities = normaliseEntities(document.id, extraction.entities);
   const relationships = normaliseRelationships(
     document.id,

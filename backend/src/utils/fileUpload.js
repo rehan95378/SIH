@@ -6,8 +6,16 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, callback) => {
-    if (file.mimetype !== 'text/plain') {
-      return callback(new Error('Only plain-text report files are supported.'));
+    const allowed = new Set([
+      'text/plain',
+      'text/csv',
+      'application/csv',
+      'application/pdf',
+      'image/jpeg',
+      'image/png'
+    ]);
+    if (!allowed.has(file.mimetype)) {
+      return callback(new Error('Only text, CSV, PDF, JPEG, and PNG files are supported.'));
     }
 
     return callback(null, true);

@@ -1,0 +1,32 @@
+{
+  "case_id": "CASE-DEMO-001",
+  "title": "Synthetic logistics investigation",
+  "description": "Completely fictional evidence bundle for a judge demonstration.",
+  "documents": [
+    {
+      "document_id": "DOC-DEMO-001",
+      "mime_type": "text/plain",
+      "content": "On 2026-08-18, Amit Sharma met Ravi Mehta near Central Warehouse. The contact used phone +91 90000 10001 and vehicle MH12AB1234. Blue River Logistics was mentioned in the report."
+    },
+    {
+      "document_id": "DOC-DEMO-002",
+      "mime_type": "text/plain",
+      "content": "An email from contact1@example.test linked Neha Kapoor to Silver Star Industries. The message referenced East Port Terminal on 2026-08-19."
+    }
+  ],
+  "expected_entity_types": [
+    "PERSON",
+    "LOCATION",
+    "ORGANIZATION",
+    "PHONE",
+    "VEHICLE",
+    "EMAIL",
+    "DATE"
+  ],
+  "expected_relationship_types": [
+    "co_occurs",
+    "called",
+    "transferred",
+    "connected_to"
+  ]
+}

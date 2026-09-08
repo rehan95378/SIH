@@ -1,0 +1,26 @@
+[
+  {
+    "text": "Amit contacted Ravi near Central Warehouse using +91 98765 43210.",
+    "entities": [
+      {"text": "Amit", "label": "PERSON"},
+      {"text": "Ravi", "label": "PERSON"},
+      {"text": "Central Warehouse", "label": "LOCATION"},
+      {"text": "+91 98765 43210", "label": "PHONE"}
+    ]
+  },
+  {
+    "text": "Blue River Logistics paid account A-100 from account B-200.",
+    "entities": [
+      {"text": "Blue River Logistics", "label": "ORGANIZATION"},
+      {"text": "A-100", "label": "ACCOUNT"},
+      {"text": "B-200", "label": "ACCOUNT"}
+    ]
+  },
+  {
+    "text": "Vehicle MH12AB1234 was seen at North Market.",
+    "entities": [
+      {"text": "MH12AB1234", "label": "VEHICLE"},
+      {"text": "North Market", "label": "LOCATION"}
+    ]
+  }
+]
