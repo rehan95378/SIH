@@ -1,0 +1,78 @@
+.cases-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.cases-layout {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(16rem, 0.8fr) 1.4fr;
+}
+
+.case-form h2 {
+  margin-top: 0.3rem;
+}
+
+.case-form textarea,
+.case-form input {
+  width: 100%;
+}
+
+.case-form textarea,
+.case-card select {
+  border: 1px solid rgba(151, 180, 210, 0.3);
+  border-radius: 0.6rem;
+  background: #091726;
+  color: #e8eef7;
+  font: inherit;
+  padding: 0.75rem;
+}
+
+.case-form textarea {
+  resize: vertical;
+}
+
+.case-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.case-card {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.case-card h2 {
+  margin: 0.65rem 0 0;
+}
+
+.case-card p {
+  margin-bottom: 0;
+}
+
+.case-status {
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.55rem;
+  text-transform: uppercase;
+}
+
+.case-status.open {
+  background: rgba(109, 227, 187, 0.14);
+  color: #6de3bb;
+}
+
+.case-status.closed,
+.case-status.archived {
+  background: rgba(145, 165, 186, 0.14);
+  color: #a9bad0;
+}
+
+@media (max-width: 800px) {
+  .cases-layout {
+    grid-template-columns: 1fr;
+  }
+}

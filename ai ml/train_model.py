@@ -11,7 +11,8 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).parent
-DATA_PATH = BASE_DIR / "training_data" / "ner_examples_large.json"
+TRAIN_PATH = BASE_DIR / "training_data" / "ner_train.json"
+VALIDATION_PATH = BASE_DIR / "training_data" / "ner_validation.json"
 MODEL_PATH = BASE_DIR / "models" / "ner"
 
 
@@ -24,10 +25,8 @@ def train() -> None:
             "Model training requires spaCy. Install requirements.txt first."
         ) from error
 
-    data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
-    random.Random(42).shuffle(data)
-    split = int(len(data) * 0.8)
-    train_data, validation_data = data[:split], data[split:]
+    train_data = json.loads(TRAIN_PATH.read_text(encoding="utf-8"))
+    validation_data = json.loads(VALIDATION_PATH.read_text(encoding="utf-8"))
     nlp = spacy.blank("en")
     ner = nlp.add_pipe("ner")
     labels = {entity["label"] for item in train_data for entity in item["entities"]}

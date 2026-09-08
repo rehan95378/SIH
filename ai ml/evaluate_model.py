@@ -6,7 +6,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
 MODEL_PATH = BASE_DIR / "models" / "ner"
-DATA_PATH = BASE_DIR / "training_data" / "ner_examples_large.json"
+DATA_PATH = BASE_DIR / "training_data" / "ner_test_unseen.json"
 
 
 def evaluate() -> dict:

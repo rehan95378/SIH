@@ -1,0 +1,101 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #e8eef7;
+  background: #08111f;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(41, 108, 171, 0.24), transparent 34rem),
+    #08111f;
+}
+
+button {
+  border: 0;
+  border-radius: 0.75rem;
+  background: #41d6a5;
+  color: #07131d;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.8rem 1.1rem;
+}
+
+button:hover {
+  background: #6de3bb;
+}
+
+label {
+  color: #a9bad0;
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+input {
+  border: 1px solid rgba(151, 180, 210, 0.3);
+  border-radius: 0.6rem;
+  background: #091726;
+  color: #e8eef7;
+  font: inherit;
+  padding: 0.75rem;
+}
+
+.status-message {
+  color: #41d6a5;
+  margin-bottom: 0;
+}
+
+.error-message {
+  color: #ff9b9b;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.app-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 2rem;
+}
+
+.welcome-card {
+  border: 1px solid rgba(151, 180, 210, 0.2);
+  border-radius: 1.25rem;
+  background: rgba(14, 29, 48, 0.92);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.28);
+  max-width: 42rem;
+  padding: clamp(2rem, 6vw, 4rem);
+}
+
+.eyebrow {
+  color: #41d6a5;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+h1 {
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  line-height: 1.02;
+  margin: 1rem 0;
+}
+
+.welcome-copy {
+  color: #a9bad0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}

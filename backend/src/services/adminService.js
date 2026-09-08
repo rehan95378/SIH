@@ -1,5 +1,6 @@
 // This service prepares the high-level counts shown to an administrator.
 const { pool } = require('../config/db');
+const userRepository = require('../repository/userRepository');
 
 const getOverview = async () => {
   const result = await pool.query(`
@@ -19,4 +20,15 @@ const getOverview = async () => {
   );
 };
 
-module.exports = { getOverview };
+const getUsers = () => userRepository.listUsers();
+
+const changeUserRole = async (id, role) => {
+  if (!['admin', 'investigator', 'analyst'].includes(role)) {
+    const error = new Error('role must be admin, investigator, or analyst.');
+    error.statusCode = 400;
+    throw error;
+  }
+  return userRepository.updateUserRole(id, role);
+};
+
+module.exports = { getOverview, getUsers, changeUserRole };

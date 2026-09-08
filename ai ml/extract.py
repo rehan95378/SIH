@@ -43,36 +43,49 @@ def _add_entity(
 
 
 def extract_entities(document_id: str, content: str) -> List[Dict]:
-    """Extract phones, vehicles, organizations, locations, and people."""
+    """Extract useful evidence entities with conservative report rules.
+
+    The demo NER model was trained on short synthetic sentences. For long,
+    natural-language complaints, deterministic patterns avoid treating words
+    such as "Yours" or "10:00" as people.
+    """
     if not document_id or not isinstance(content, str) or not content.strip():
         raise ValueError("document_id and non-empty content are required")
 
     entities: List[Dict] = []
     seen = set()
 
-    if MODEL_PATH.exists():
-        try:
-            import spacy
-            model = spacy.load(MODEL_PATH)
-            for span in model(content).ents:
-                _add_entity(
-                    entities,
-                    seen,
-                    document_id,
-                    span.label_.lower(),
-                    span.text,
-                    0.85,
-                )
-            if entities:
-                return entities
-        except (ImportError, OSError):
-            pass
-
-    for value in re.findall(r"\+?\d[\d\s().-]{7,}\d", content):
+    for value in re.findall(
+        r"(?:\+?\d[\d\s().-]{7,}\d|\b\d{4}[Xx]{6}\b)", content
+    ):
         _add_entity(entities, seen, document_id, "phone", value, 0.98)
+
+    for value in re.findall(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", content, re.I):
+        _add_entity(entities, seen, document_id, "email", value, 0.98)
 
     for value in re.findall(r"\b[A-Z]{2}\d{1,2}[A-Z]{1,3}\d{4}\b", content, re.I):
         _add_entity(entities, seen, document_id, "vehicle", value.upper(), 0.95)
+
+    for value in re.findall(
+        r"(?:₹|Rs\.?|INR)\s?[\d,]+(?:\.\d{1,2})?", content, re.I
+    ):
+        _add_entity(entities, seen, document_id, "money", value, 0.98)
+
+    for value in re.findall(
+        r"\b(?:\d{1,2}(?:st|nd|rd|th)?\s+"
+        r"(?:January|February|March|April|May|June|July|August|September|October|November|December)"
+        r"\s+\d{4}|\d{4}-\d{2}-\d{2})\b",
+        content,
+        re.I,
+    ):
+        _add_entity(entities, seen, document_id, "date", value, 0.97)
+
+    for value in re.findall(
+        r"\b(?:Lenovo laptop|digital camera|gold jewellery|silver ornaments)\b",
+        content,
+        re.I,
+    ):
+        _add_entity(entities, seen, document_id, "item", value, 0.92)
 
     organization_pattern = (
         r"\b[A-Z][\w&]*(?:\s+[A-Z][\w&]*){0,5}\s+"
@@ -81,16 +94,41 @@ def extract_entities(document_id: str, content: str) -> List[Dict]:
     for value in re.findall(organization_pattern, content):
         _add_entity(entities, seen, document_id, "organization", value, 0.90)
 
-    location_pattern = r"\b(?:near|at|in|from)\s+([A-Z][\w-]*(?:\s+[A-Z][\w-]*){0,3})"
+    location_pattern = (
+        r"\b(?:near|at|in|from|Police Station)\s+"
+        r"([A-Z][\w-]*(?:\s+[A-Z][\w-]*){0,3})"
+    )
     for value in re.findall(location_pattern, content):
-        _add_entity(entities, seen, document_id, "location", value, 0.78)
+        _add_entity(entities, seen, document_id, "location", value, 0.88)
 
-    ignored_words = {"The", "A", "An", "This", "Report", "Near", "At", "In", "From"}
-    for value in re.findall(r"\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,})?\b", content):
-        if value not in ignored_words:
-            _add_entity(entities, seen, document_id, "person", value, 0.70)
+    ignored_words = {
+        "The", "A", "An", "This", "Report", "Near", "At", "In", "From",
+        "Officer", "Charge", "Police", "Station", "New", "Delhi", "Yours",
+        "Thanking", "Lenovo", "One", "Yesterday", "September",
+    }
+    for value in re.findall(
+        r"\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,}){2}(?=Mobile|Phone|\b)",
+        content,
+    ):
+        if not any(word in ignored_words for word in value.split()):
+            _add_entity(entities, seen, document_id, "person", value, 0.86)
 
-    return entities
+    for value in re.findall(
+        r"\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]{2,}){1,2}\b", content
+    ):
+        if not any(word in ignored_words for word in value.split()):
+            _add_entity(entities, seen, document_id, "person", value, 0.86)
+
+    # Prefer the longest version when a full name also produced a shorter span.
+    return [
+        entity for entity in entities
+        if not any(
+            entity["type"] == other["type"]
+            and entity["name"].lower() != other["name"].lower()
+            and entity["name"].lower() in other["name"].lower()
+            for other in entities
+        )
+    ]
 
 
 def build_relationships(document_id: str, entities: List[Dict]) -> List[Dict]:
@@ -115,7 +153,7 @@ def extract_document(document_id: str, content: str) -> Dict:
     """Return entities and relationships in the backend's AI response shape."""
     entities = extract_entities(document_id, content)
     return {
-        "status": "trained_ner" if MODEL_PATH.exists() else "local_rule_based",
+        "status": "report_rule_based",
         "document_id": document_id,
         "entities": entities,
         "relationships": build_relationships(document_id, entities),

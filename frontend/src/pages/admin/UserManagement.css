@@ -1,0 +1,47 @@
+.user-management-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.users-panel {
+  padding: 0 1.25rem;
+}
+
+.user-row {
+  align-items: center;
+  border-bottom: 1px solid rgba(151, 180, 210, 0.12);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem 0;
+}
+
+.user-row:last-child {
+  border-bottom: 0;
+}
+
+.user-row div {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.user-row small {
+  color: #91a5ba;
+}
+
+.user-row select {
+  background: #091726;
+  border: 1px solid rgba(151, 180, 210, 0.3);
+  border-radius: 0.6rem;
+  color: #e8eef7;
+  font: inherit;
+  padding: 0.55rem;
+  text-transform: capitalize;
+}
+
+@media (max-width: 550px) {
+  .user-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

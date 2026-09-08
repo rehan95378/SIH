@@ -1,0 +1,9 @@
+.export-button {
+  background: transparent;
+  border: 1px solid rgba(109, 227, 187, 0.55);
+  color: #6de3bb;
+}
+
+.export-button:hover {
+  background: rgba(109, 227, 187, 0.12);
+}

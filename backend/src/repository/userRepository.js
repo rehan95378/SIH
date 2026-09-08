@@ -23,4 +23,29 @@ const createUser = async ({ id, email, passwordHash, role = 'analyst' }) => {
   return result.rows[0];
 };
 
-module.exports = { getUserByEmail, createUser };
+const listUsers = async () => {
+  const result = await pool.query(
+    `SELECT id, email, role, created_at
+       FROM users
+      ORDER BY created_at DESC, email ASC`
+  );
+  return result.rows;
+};
+
+const updateUserRole = async (id, role) => {
+  const result = await pool.query(
+    `UPDATE users
+        SET role = $2
+      WHERE id = $1
+      RETURNING id, email, role, created_at`,
+    [id, role]
+  );
+  return result.rows[0] || null;
+};
+
+module.exports = {
+  getUserByEmail,
+  createUser,
+  listUsers,
+  updateUserRole
+};

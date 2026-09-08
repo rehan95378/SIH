@@ -1,0 +1,60 @@
+.node-detail-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.node-detail-panel h2,
+.node-detail-panel h3 {
+  margin: 0.25rem 0 0;
+}
+
+.entity-type-badge {
+  background: rgba(141, 183, 255, 0.14);
+  border-radius: 2rem;
+  color: #a9c7ff;
+  padding: 0.4rem 0.65rem;
+  text-transform: capitalize;
+}
+
+.node-facts {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.node-facts span {
+  color: #91a5ba;
+  display: grid;
+  font-size: 0.8rem;
+  gap: 0.3rem;
+}
+
+.node-facts strong {
+  color: #e8eef7;
+  font-size: 1rem;
+}
+
+.connection-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.connection-list li {
+  align-items: center;
+  border-top: 1px solid rgba(151, 180, 210, 0.12);
+  display: flex;
+  justify-content: space-between;
+  padding: 0.7rem 0;
+}
+
+.connection-list small {
+  color: #91a5ba;
+  text-transform: capitalize;
+}
+
+@media (max-width: 500px) {
+  .node-facts {
+    grid-template-columns: 1fr;
+  }
+}

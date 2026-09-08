@@ -1,0 +1,26 @@
+.admin-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-metric-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-page h1 {
+  margin: 0.25rem 0 0.6rem;
+}
+
+@media (max-width: 800px) {
+  .admin-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 500px) {
+  .admin-metric-grid {
+    grid-template-columns: 1fr;
+  }
+}

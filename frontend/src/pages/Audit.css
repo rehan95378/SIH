@@ -1,0 +1,39 @@
+.audit-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.audit-panel {
+  padding: 0 1.25rem;
+}
+
+.audit-row {
+  align-items: center;
+  border-bottom: 1px solid rgba(151, 180, 210, 0.12);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem 0;
+}
+
+.audit-row:last-child {
+  border-bottom: 0;
+}
+
+.audit-row p {
+  margin: 0.35rem 0 0;
+}
+
+.audit-row time {
+  color: #91a5ba;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 650px) {
+  .audit-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+}

@@ -1,0 +1,23 @@
+.entities-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.selected-entity {
+  align-items: center;
+  background: rgba(104, 213, 180, 0.1);
+  border: 1px solid rgba(104, 213, 180, 0.35);
+  border-radius: 0.75rem;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+}
+
+.selected-entity span {
+  color: #9eb0c2;
+  font-size: 0.9rem;
+}
+
+.entities-panel {
+  margin-bottom: 0;
+}
