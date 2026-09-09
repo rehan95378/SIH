@@ -3,6 +3,8 @@
 import json
 import os
 import sys
+import csv
+import io
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Dict
 
@@ -13,13 +15,28 @@ from document_parser import extract_text
 from parsers.cdr_parser import parse_cdr
 from parsers.financial_parser import parse_financial_transactions
 from parsers.social_parser import parse_social_connections
+from parsers.generic_csv_parser import parse_generic_csv
 
 
 PARSER_TYPES = {
     "cdr": parse_cdr,
     "financial": parse_financial_transactions,
     "social": parse_social_connections,
+    "csv": parse_generic_csv,
 }
+
+
+def _looks_like_csv(content: str) -> bool:
+    """Detect delimited tabular text when callers omit a CSV MIME type."""
+    sample = content[:8192]
+    if "\n" not in sample:
+        return False
+    try:
+        dialect = csv.Sniffer().sniff(sample, delimiters=",;\t|")
+        rows = list(csv.reader(io.StringIO(sample), dialect))
+    except csv.Error:
+        return False
+    return len(rows) >= 2 and len(rows[0]) >= 2 and len(rows[1]) >= 2
 
 
 def process_document(payload: Dict) -> Dict:
@@ -34,12 +51,19 @@ def process_document(payload: Dict) -> Dict:
     )
 
     data_type = payload.get("data_type", "report")
+    mime_type = (payload.get("mime_type") or "").split(";")[0].lower()
+    if data_type == "report" and (
+        mime_type in {
+        "text/csv", "application/csv",
+        } or _looks_like_csv(content)
+    ):
+        data_type = "csv"
     if data_type in PARSER_TYPES:
         result = PARSER_TYPES[data_type](content, document_id)
     elif data_type == "report":
         result = extract_document(document_id, content)
     else:
-        raise ValueError("data_type must be report, cdr, financial, or social")
+        raise ValueError("data_type must be report, csv, cdr, financial, or social")
 
     result["data_type"] = data_type
     result["extracted_text"] = content

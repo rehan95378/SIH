@@ -85,10 +85,10 @@ const ingestBody = (req, res, next) => {
     }
     if (
       body.data_type !== undefined
-      && !['report', 'cdr', 'financial', 'social'].includes(body.data_type)
+      && !['report', 'csv', 'cdr', 'financial', 'social'].includes(body.data_type)
     ) {
       return res.status(400).json({
-        message: 'data_type must be report, cdr, financial, or social.',
+        message: 'data_type must be report, csv, cdr, financial, or social.',
         status: 400
       });
     }

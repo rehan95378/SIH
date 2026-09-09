@@ -1,7 +1,11 @@
 """Train the optional NER model from the synthetic JSON examples.
 
 Run from this folder after installing requirements:
-    python train_model.py
+    ../.venv/bin/python train_model.py
+
+The repository also includes ``./train.sh`` for a project-local command.
+Use ``TRAIN_LIMIT=256 TRAIN_ITERATIONS=1 ./train.sh`` for a quick smoke test;
+omit ``TRAIN_LIMIT`` for the full corpus.
 """
 
 import json
@@ -27,6 +31,10 @@ def train() -> None:
 
     train_data = json.loads(TRAIN_PATH.read_text(encoding="utf-8"))
     validation_data = json.loads(VALIDATION_PATH.read_text(encoding="utf-8"))
+    limit = int(os.getenv("TRAIN_LIMIT", "0"))
+    if limit > 0:
+        train_data = train_data[:limit]
+        validation_data = validation_data[:limit]
     nlp = spacy.blank("en")
     ner = nlp.add_pipe("ner")
     labels = {entity["label"] for item in train_data for entity in item["entities"]}
@@ -63,7 +71,8 @@ def train() -> None:
     iterations = int(os.getenv("TRAIN_ITERATIONS", "20"))
     for iteration in range(iterations):
         losses = {}
-        batches = spacy.util.minibatch(examples, size=8)
+        random.shuffle(examples)
+        batches = spacy.util.minibatch(examples, size=32)
         for batch in batches:
             nlp.update(batch, sgd=optimizer, drop=0.15, losses=losses)
         if iteration == 0 or (iteration + 1) % 5 == 0 or iteration + 1 == iterations:

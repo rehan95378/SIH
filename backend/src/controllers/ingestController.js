@@ -2,12 +2,12 @@
 const { asyncHandler } = require("../utils/asyncHandler");
 const { processReport } = require("../services/ingestService");
 
-const supportedDataTypes = new Set(["report", "cdr", "financial", "social"]);
+const supportedDataTypes = new Set(["report", "csv", "cdr", "financial", "social"]);
 
 const getDataType = (value) => {
   const dataType = value || "report";
   if (!supportedDataTypes.has(dataType)) {
-    const error = new Error("data_type must be report, cdr, financial, or social.");
+    const error = new Error("data_type must be report, csv, cdr, financial, or social.");
     error.statusCode = 400;
     throw error;
   }

@@ -28,7 +28,7 @@ def extract_text(
     else:
         raise ValueError("content or content_base64 is required")
 
-    if clean_mime in {"text/plain", "text/csv", "application/csv"}:
+    if clean_mime in {"text/plain", "text/csv", "application/csv", "text/tab-separated-values"}:
         return raw.decode("utf-8", errors="replace").strip()
 
     if clean_mime == "application/pdf":

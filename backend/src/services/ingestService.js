@@ -10,7 +10,7 @@ const text = (value, field) => {
   }
 };
 
-const supportedDataTypes = new Set(['report', 'cdr', 'financial', 'social']);
+const supportedDataTypes = new Set(['report', 'csv', 'cdr', 'financial', 'social']);
 
 const normaliseEntities = (documentId, entities = []) => entities.map((entity, index) => {
   text(entity.name, `entities[${index}].name`);
@@ -127,7 +127,7 @@ const processReport = async ({
 } = {}) => {
   text(title, 'title');
   if (!supportedDataTypes.has(dataType)) {
-    throw new Error('dataType must be report, cdr, financial, or social.');
+    throw new Error('dataType must be report, csv, cdr, financial, or social.');
   }
   if (
     (typeof content !== 'string' || content.trim() === '')

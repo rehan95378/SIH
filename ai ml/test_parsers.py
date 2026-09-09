@@ -10,6 +10,7 @@ import unittest
 from parsers.cdr_parser import parse_cdr
 from parsers.financial_parser import parse_financial_transactions
 from parsers.social_parser import parse_social_connections
+from parsers.generic_csv_parser import parse_generic_csv
 from extract import extract_document, extract_entities
 from graph import analyze_graph, calculate_pagerank, calculate_betweenness
 
@@ -39,6 +40,28 @@ class TestParsers(unittest.TestCase):
         self.assertEqual(len(result["entities"]), 2)
         self.assertEqual(len(result["relationships"]), 1)
         self.assertEqual(result["relationships"][0]["relationship_type"], "connected_to")
+
+    def test_unknown_csv_schema_is_auto_detected(self):
+        result = parse_generic_csv(
+            "subject,phone_number,place,notes\n"
+            "New Person,+1 555 0100,Central Warehouse,observed\n"
+            "New Person,+1 555 0101,North Market,follow-up\n",
+            "doc-csv",
+        )
+        self.assertEqual(result["status"], "csv_auto_detected")
+        self.assertEqual(result["metadata"]["rows"], 2)
+        self.assertTrue(any(entity["type"] == "person" for entity in result["entities"]))
+        self.assertTrue(any(entity["type"] == "phone" for entity in result["entities"]))
+        self.assertGreater(len(result["relationships"]), 0)
+
+    def test_unknown_csv_text_values_are_scanned_for_identifiers(self):
+        result = parse_generic_csv(
+            "event,details\n"
+            "alert,\"Contacted new.person@future.test from 203.0.113.9\"\n",
+            "doc-csv-identifiers",
+        )
+        types = {entity["type"] for entity in result["entities"]}
+        self.assertTrue({"email", "ip_address"} <= types)
 
     def test_extract_phone_does_not_match_iso_date(self):
         text = "Meeting happened on 2026-09-08 near Warehouse. Call was made to +91 98765 43210."

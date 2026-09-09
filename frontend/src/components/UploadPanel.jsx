@@ -5,6 +5,7 @@ import './UploadPanel.css';
 
 const evidenceTypes = [
   ['report', 'Report / text'],
+  ['csv', 'CSV / auto-detect columns'],
   ['cdr', 'Call detail record'],
   ['financial', 'Financial transactions'],
   ['social', 'Social connections']

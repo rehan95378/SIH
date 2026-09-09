@@ -160,11 +160,16 @@ def generate_examples(count=10000, seed=42):
             values["person_b"] = PEOPLE[(PEOPLE.index(values["person_a"]) + 1) % len(PEOPLE)]
         if values["account_a"] == values["account_b"]:
             values["account_b"] = ACCOUNTS[(ACCOUNTS.index(values["account_a"]) + 1) % len(ACCOUNTS)]
+        if values["item"] == values["item_b"]:
+            values["item_b"] = ITEMS[(ITEMS.index(values["item"]) + 1) % len(ITEMS)]
         template = generator.choice(TEMPLATES)
         # Keep dots and hyphens intact so URLs, IPs, dates, and hashes remain
         # realistic and their annotations stay token-aligned.
         text = re.sub(r"([,;()])", r" \1 ", template.format(**values))
         text = re.sub(r"\s+", " ", text).strip()
+        # Separate sentence-ending punctuation from an entity token without
+        # changing dots inside dates, domains, IPs, or checksums.
+        text = re.sub(r"(?<=\w)\.(?=\s|$)", " .", text)
         entities = []
         search_start = 0
         for key, label in labels.items():
@@ -182,6 +187,19 @@ def generate_examples(count=10000, seed=42):
             })
             search_start = start + len(values[key])
         entities.sort(key=lambda entity: entity["_start"])
+        non_overlapping = []
+        for entity in sorted(
+            entities,
+            key=lambda item: (item["_start"], -(len(item["text"]))),
+        ):
+            end = entity["_start"] + len(entity["text"])
+            if any(
+                entity["_start"] < kept["_start"] + len(kept["text"])
+                and kept["_start"] < end
+                for kept in non_overlapping
+            ):
+                continue
+            non_overlapping.append(entity)
         examples.append({
             "text": text,
             "entities": [
@@ -191,7 +209,7 @@ def generate_examples(count=10000, seed=42):
                     "start": entity["_start"],
                     "end": entity["_start"] + len(entity["text"]),
                 }
-                for entity in entities
+                for entity in non_overlapping
             ],
         })
     return examples

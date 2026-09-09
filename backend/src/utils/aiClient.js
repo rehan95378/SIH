@@ -141,7 +141,7 @@ const callAiModel = async ({
     );
   }
 
-  if (dataType !== 'report') {
+  if (dataType !== 'report' && dataType !== 'csv') {
     throw new Error('AI_SERVICE_URL is required for structured evidence files.');
   }
 
