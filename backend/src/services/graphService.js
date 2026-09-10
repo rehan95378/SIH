@@ -1,6 +1,7 @@
 // This service combines stored nodes and connections into one graph response.
 const entityRepository = require('../repository/entityRepository');
 const relationshipRepository = require('../repository/relationshipRepository');
+const documentRepository = require('../repository/documentRepository');
 
 const validateId = (value, fieldName) => {
   if (typeof value !== 'string' || value.trim() === '') {
@@ -23,13 +24,26 @@ const buildGraph = async (filters = {}) => {
     })
   ]);
 
-  return { nodes, edges };
+  return { nodes, links: edges, edges };
 };
 
 const getRelationshipsForEntity = async (entityId, options = {}) => {
   validateId(entityId, 'Entity id');
 
   return relationshipRepository.listRelationshipsForEntity(entityId, options);
+};
+
+const getNodeDetail = async (entityId) => {
+  validateId(entityId, 'Entity id');
+  const node = await entityRepository.getEntityById(entityId);
+  if (!node) return null;
+  const links = await relationshipRepository.listRelationshipsForEntity(entityId);
+  const documentIds = new Set([node.source_document_id]);
+  links.forEach((link) => documentIds.add(link.source_document_id));
+  const evidence = await Promise.all(
+    [...documentIds].map((documentId) => documentRepository.getDocumentById(documentId))
+  );
+  return { node, links, evidence: evidence.filter(Boolean) };
 };
 
 const createRelationship = async (relationship) => {
@@ -57,5 +71,6 @@ const createRelationship = async (relationship) => {
 module.exports = {
   buildGraph,
   getRelationshipsForEntity,
+  getNodeDetail,
   createRelationship
 };

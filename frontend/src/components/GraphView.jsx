@@ -12,7 +12,8 @@ const colors = {
   default: '#b2c2d4'
 };
 
-export default function GraphView({ nodes = [], edges = [], onSelect }) {
+export default function GraphView({ nodes = [], edges = [], links = [], onSelect }) {
+  const graphEdges = edges.length ? edges : links;
   const visibleNodes = nodes.slice(0, 24);
   const positions = visibleNodes.map((node, index) => {
     const angle = (index / Math.max(visibleNodes.length, 1)) * Math.PI * 2;
@@ -31,7 +32,7 @@ export default function GraphView({ nodes = [], edges = [], onSelect }) {
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
       >
-        {edges.map((edge) => {
+        {graphEdges.map((edge) => {
           const source = byId.get(edge.source);
           const target = byId.get(edge.target);
           if (!source || !target) return null;

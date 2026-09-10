@@ -8,23 +8,19 @@ from typing import Dict, List
 
 HEADER_TYPES = {
     "phone": "phone", "mobile": "phone", "caller": "phone", "receiver": "phone",
-    "email": "email", "e-mail": "email",
-    "account": "account", "account_id": "account", "iban": "account",
+    "email": "organization", "e-mail": "organization",
+    "account": "organization", "account_id": "organization", "iban": "organization",
     "vehicle": "vehicle", "plate": "vehicle", "registration": "vehicle",
     "person": "person", "name": "person", "subject": "person",
     "suspect": "person", "victim": "person",
     "location": "location", "address": "location", "place": "location",
-    "ip": "ip_address", "ip_address": "ip_address", "url": "url",
-    "date": "date", "time": "time", "timestamp": "date",
-    "device": "device", "imei": "device", "hash": "hash",
+    "ip": "organization", "ip_address": "organization", "url": "organization",
+    "date": "organization", "time": "organization", "timestamp": "organization",
+    "device": "organization", "imei": "organization", "hash": "organization",
     "organization": "organization", "organisation": "organization", "company": "organization",
 }
 VALUE_PATTERNS = (
-    ("email", re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)),
     ("phone", re.compile(r"(?:\+?\d[\d\s().-]{7,}\d)")),
-    ("ip_address", re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")),
-    ("url", re.compile(r"https?://[^\s<>()\[\]{}\"']+", re.I)),
-    ("date", re.compile(r"\b\d{4}-\d{2}-\d{2}\b")),
 )
 
 
@@ -63,7 +59,7 @@ def parse_generic_csv(content: str, document_id: str, max_rows: int = 10000) -> 
         if not clean:
             return ""
         if key not in entity_ids:
-            entity_id = f"{document_id}-{_slug(entity_type)}-{len(entity_ids)}"
+            entity_id = f"n-{_slug(entity_type)}-{_slug(clean)}"
             entity_ids[key] = entity_id
             entities.append({
                 "id": entity_id,
@@ -95,7 +91,7 @@ def parse_generic_csv(content: str, document_id: str, max_rows: int = 10000) -> 
                     "id": f"{document_id}-csv-{row_index}-{left_index}-{row_entities.index(target)}",
                     "source": source,
                     "target": target,
-                    "relationship_type": "co_occurs_in_row",
+                    "relationship_type": "co-occurred",
                     "source_document_id": document_id,
                 })
 

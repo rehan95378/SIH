@@ -1,31 +1,29 @@
-"""Rule-based entity extraction for crime reports.
-
-This first version lets the complete application work before a trained
-machine-learning model is connected.
-"""
+"""Entity extraction for crime reports using spaCy plus structured patterns."""
 
 import re
 import os
 from pathlib import Path
 from typing import Dict, List
 
-MODEL_PATH = Path(__file__).with_name("models") / "ner"
 MODEL_MAX_CHARS = int(os.getenv("NER_CHUNK_SIZE", "12000"))
 _NER = None
+ALLOWED_TYPES = {"person", "organization", "location", "phone", "vehicle"}
 
 
 def _load_model():
-    """Load the optional trained model once, without making it mandatory."""
+    """Load spaCy's pretrained English model once."""
     global _NER
     if _NER is not None:
         return _NER
-    if not MODEL_PATH.exists() or os.getenv("DISABLE_NER_MODEL") == "1":
-        return None
     try:
         import spacy
-        _NER = spacy.load(MODEL_PATH)
-    except (ImportError, OSError, ValueError):
-        return None
+        _NER = spacy.load("en_core_web_sm")
+    except ImportError as error:
+        raise RuntimeError("spaCy is required for report extraction.") from error
+    except OSError as error:
+        raise RuntimeError(
+            "The pretrained spaCy model en_core_web_sm is not installed."
+        ) from error
     return _NER
 
 
@@ -69,7 +67,7 @@ def _add_entity(
     seen.add(key)
     entities.append(
         {
-            "id": f"{document_id}-{_slug(entity_type)}-{_slug(clean_name)}",
+            "id": f"n-{_slug(entity_type)}-{_slug(clean_name)}",
             "type": entity_type,
             "name": clean_name,
             "source_document_id": document_id,
@@ -98,53 +96,8 @@ def extract_entities(document_id: str, content: str) -> List[Dict]:
             continue
         _add_entity(entities, seen, document_id, "phone", value, 0.98)
 
-    for value in re.findall(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", content, re.I):
-        _add_entity(entities, seen, document_id, "email", value, 0.98)
-
     for value in re.findall(r"\b[A-Z]{2}\d{1,2}[A-Z]{1,3}\d{4}\b", content, re.I):
         _add_entity(entities, seen, document_id, "vehicle", value.upper(), 0.95)
-
-    for value in re.findall(
-        r"\b(?:IP\s+)?(?:\d{1,3}\.){3}\d{1,3}\b", content, re.I
-    ):
-        _add_entity(entities, seen, document_id, "ip_address", value, 0.96)
-
-    for value in re.findall(r"https?://[^\s<>()\[\]{}\"']+", content, re.I):
-        _add_entity(entities, seen, document_id, "url", value.rstrip(".,;:"), 0.96)
-
-    for value in re.findall(r"\b(?:[01]\d|2[0-3]):[0-5]\d\b", content):
-        _add_entity(entities, seen, document_id, "time", value, 0.94)
-
-    for value in re.findall(
-        r"\b(?:SHA256|MD5)\s+[a-f0-9]{16,64}\b", content, re.I
-    ):
-        _add_entity(entities, seen, document_id, "hash", value, 0.96)
-
-    for value in re.findall(
-        r"\b(?:FIR|CASE|ECIR|SEIZURE)-[A-Z0-9-]{4,}\b", content, re.I
-    ):
-        _add_entity(entities, seen, document_id, "case_id", value, 0.96)
-
-    for value in re.findall(
-        r"(?:₹|Rs\.?|INR)\s?[\d,]+(?:\.\d{1,2})?", content, re.I
-    ):
-        _add_entity(entities, seen, document_id, "money", value, 0.98)
-
-    for value in re.findall(
-        r"\b(?:\d{1,2}(?:st|nd|rd|th)?\s+"
-        r"(?:January|February|March|April|May|June|July|August|September|October|November|December)"
-        r"\s+\d{4}|\d{4}-\d{2}-\d{2})\b",
-        content,
-        re.I,
-    ):
-        _add_entity(entities, seen, document_id, "date", value, 0.97)
-
-    for value in re.findall(
-        r"\b(?:Lenovo laptop|digital camera|gold jewellery|silver ornaments)\b",
-        content,
-        re.I,
-    ):
-        _add_entity(entities, seen, document_id, "item", value, 0.92)
 
     organization_pattern = (
         r"\b[A-Z][\w&]*(?:\s+[A-Z][\w&]*){0,5}\s+"
@@ -184,8 +137,19 @@ def extract_entities(document_id: str, content: str) -> List[Dict]:
             for span in model(chunk).ents:
                 if not span.text.strip():
                     continue
-                label = span.label_.lower()
+                label = {
+                    "per": "person",
+                    "org": "organization",
+                    "gpe": "location",
+                    "loc": "location",
+                }.get(span.label_.lower())
+                if label not in ALLOWED_TYPES:
+                    continue
                 model_name = re.sub(r"\s+", " ", span.text).strip()
+                if label == "location" and " " not in model_name:
+                    prefix = content[max(0, offset + span.start_char - 12):offset + span.start_char].lower()
+                    if not re.search(r"\b(?:near|at|in|from)\s*$", prefix):
+                        continue
                 if any(
                     model_name.lower() in entity["name"].lower()
                     or entity["name"].lower() in model_name.lower()
@@ -201,6 +165,14 @@ def extract_entities(document_id: str, content: str) -> List[Dict]:
         if not (
             entity["type"] == "location"
             and any(other["type"] == "person" and other["name"].lower() == entity["name"].lower() for other in entities)
+        )
+        and not (
+            entity["type"] == "person"
+            and any(
+                other["type"] == "organization"
+                and other["name"].lower() == entity["name"].lower()
+                for other in entities
+            )
         )
     ]
     return [
@@ -225,7 +197,7 @@ def build_relationships(document_id: str, entities: List[Dict]) -> List[Dict]:
                     "id": f"{document_id}-edge-{source_index}-{target_index}",
                     "source": source["id"],
                     "target": target["id"],
-                    "relationship_type": "co_occurs",
+                    "relationship_type": "co-occurred",
                     "source_document_id": document_id,
                 }
             )
@@ -233,11 +205,11 @@ def build_relationships(document_id: str, entities: List[Dict]) -> List[Dict]:
 
 
 def extract_document(document_id: str, content: str) -> Dict:
-    """Return entities and relationships in the backend's AI response shape."""
+    """Return extracted entities and contract-compatible links."""
     entities = extract_entities(document_id, content)
     return {
         "status": "report_rule_based",
         "document_id": document_id,
         "entities": entities,
-        "relationships": build_relationships(document_id, entities),
+        "links": build_relationships(document_id, entities),
     }

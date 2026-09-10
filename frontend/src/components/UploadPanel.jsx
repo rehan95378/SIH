@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { uploadReport } from '../api/client.js';
+import { getIngestStatus, uploadReport } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import './UploadPanel.css';
 
@@ -30,12 +30,17 @@ export default function UploadPanel({ onComplete }) {
     setBusy(true);
     setMessage('Sending evidence to AI analysis...');
     try {
-      const result = await uploadReport(token, {
+      const accepted = await uploadReport(token, {
         title: title || file?.name || `${dataType} evidence`,
         dataType,
         content,
         file
       });
+      let result = accepted;
+      while (result.status === 'processing') {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        result = await getIngestStatus(token, accepted.job_id);
+      }
       setAnalysis(result);
       setMessage(
         `Analysis complete: ${result.graph?.nodes?.length || 0} entities found.`

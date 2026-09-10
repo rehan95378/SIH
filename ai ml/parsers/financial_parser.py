@@ -2,6 +2,7 @@
 
 import csv
 import io
+import re
 from typing import Dict, List
 
 
@@ -33,12 +34,12 @@ def parse_financial_transactions(content: str, document_id: str) -> Dict:
         if not account:
             raise ValueError("account values cannot be empty")
         if account not in entity_ids:
-            entity_id = f"{document_id}-account-{len(entity_ids)}"
+            entity_id = f"n-organization-{re.sub(r'[^a-zA-Z0-9]+', '-', account).strip('-').lower()}"
             entity_ids[account] = entity_id
             entities.append(
                 {
                     "id": entity_id,
-                    "type": "account",
+                    "type": "organization",
                     "name": account,
                     "source_document_id": document_id,
                     "confidence": 0.99,
@@ -69,7 +70,7 @@ def parse_financial_transactions(content: str, document_id: str) -> Dict:
                 "id": f"{document_id}-transfer-{index}",
                 "source": source_id,
                 "target": target_id,
-                "relationship_type": "transferred",
+                "relationship_type": "co-occurred",
                 "source_document_id": document_id,
                 "metadata": {
                     "amount": numeric_amount,

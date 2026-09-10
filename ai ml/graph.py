@@ -135,7 +135,17 @@ def analyze_graph(entities: List[Dict], relationships: List[Dict]) -> Dict:
     """Return all analytics in one backend-friendly object."""
     pagerank = calculate_pagerank(entities, relationships)
     betweenness = calculate_betweenness(entities, relationships)
+    enriched_nodes = [
+        {
+            **entity,
+            "pagerank": pagerank.get(entity["id"], 0.0),
+            "betweenness": betweenness.get(entity["id"], 0.0),
+        }
+        for entity in entities
+    ]
     return {
+        "nodes": enriched_nodes,
+        "links": relationships,
         "pagerank": pagerank,
         "betweenness": betweenness,
         "suspicious_patterns": suspicious_patterns(entities, relationships),

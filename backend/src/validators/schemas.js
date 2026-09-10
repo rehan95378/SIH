@@ -58,10 +58,8 @@ const ingestBody = (req, res, next) => {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
     return res.status(400).json({ message: 'Request body must be a JSON object.', status: 400 });
   }
-  if (typeof body.title !== 'string' || body.title.trim() === '') {
-    return res.status(400).json({ message: 'title must be a non-empty string.', status: 400 });
-  }
-  const hasText = typeof body.content === 'string' && body.content.trim() !== '';
+  const hasText = (typeof body.content === 'string' && body.content.trim() !== '')
+    || (typeof body.text === 'string' && body.text.trim() !== '');
   const hasBase64 = typeof body.content_base64 === 'string' && body.content_base64.trim() !== '';
   if (!hasText && !hasBase64) {
     return res.status(400).json({
@@ -72,6 +70,7 @@ const ingestBody = (req, res, next) => {
   for (const field of [
     'id',
     'created_by',
+    'text',
     'content',
     'content_base64',
     'mime_type',

@@ -1,39 +1,37 @@
 """Suspicious-pattern helpers for the crime-network graph."""
 
-from collections import Counter
 from typing import Dict, List
 
 
-def detect_patterns(entities: List[Dict], relationships: List[Dict]) -> Dict:
+def detect_patterns(
+    entities: List[Dict], relationships: List[Dict], betweenness: Dict[str, float] | None = None
+) -> Dict:
     """Return simple explainable patterns for the frontend dashboard."""
-    entity_names = {
-        entity["id"]: entity.get("name", entity["id"]) for entity in entities
-    }
-    contact_counts = Counter()
+    contact_documents = {}
     for relationship in relationships:
-        contact_counts[relationship["source"]] += 1
-        contact_counts[relationship["target"]] += 1
+        pair = tuple(sorted((relationship["source"], relationship["target"])))
+        contact_documents.setdefault(pair, set()).add(
+            relationship["source_document_id"]
+        )
 
     high_frequency_contacts = [
         {
-            "entity_id": entity_id,
-            "entity_name": entity_names[entity_id],
-            "contact_count": count,
+            "source": pair[0],
+            "target": pair[1],
+            "document_count": len(documents),
         }
-        for entity_id, count in contact_counts.most_common()
-        if count >= 3
+        for pair, documents in contact_documents.items()
+        if len(documents) > 5
     ]
 
+    scores = betweenness or {}
+    bridge_count = max(1, (len(entities) + 9) // 10) if entities else 0
     bridge_nodes = [
-        {
-            "entity_id": entity_id,
-            "entity_name": entity_names[entity_id],
-            "contact_count": count,
-        }
-        for entity_id, count in contact_counts.most_common()
-        if count == max(contact_counts.values(), default=0) and count >= 2
+        entity_id
+        for entity_id, _score in sorted(
+            scores.items(), key=lambda item: item[1], reverse=True
+        )[:bridge_count]
     ]
-
     return {
         "high_frequency_contacts": high_frequency_contacts,
         "bridge_nodes": bridge_nodes,

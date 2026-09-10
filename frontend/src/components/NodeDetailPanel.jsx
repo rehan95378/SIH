@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react';
-import { getEntityRelationships } from '../api/client.js';
+import { getNodeDetail } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import './NodeDetailPanel.css';
 
 export default function NodeDetailPanel({ node, nodes }) {
   const { token } = useAuth();
   const [relationships, setRelationships] = useState([]);
+  const [evidence, setEvidence] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (!node) return undefined;
     setError('');
-    getEntityRelationships(token, node.id)
-      .then((result) => setRelationships(result.edges || []))
+    getNodeDetail(token, node.id)
+      .then((result) => {
+        setRelationships(result.links || []);
+        setEvidence(result.evidence || []);
+      })
       .catch((requestError) => setError(requestError.message));
     return undefined;
   }, [node, token]);
@@ -53,6 +57,11 @@ export default function NodeDetailPanel({ node, nodes }) {
           );
         })}
         {!relationships.length && !error && <li className="muted">No direct connections found.</li>}
+      </ul>
+      <h3>Source documents</h3>
+      <ul className="connection-list">
+        {evidence.map((document) => <li key={document.id}>{document.title}</li>)}
+        {!evidence.length && !error && <li className="muted">No source documents found.</li>}
       </ul>
     </aside>
   );

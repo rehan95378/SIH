@@ -40,6 +40,30 @@ CREATE TABLE IF NOT EXISTS relationships (
   CHECK (source <> target)
 );
 
+-- Contract-facing graph tables. The legacy entities/relationships tables above
+-- remain during the prototype migration so existing dashboard routes continue
+-- to work while new integrations can use the agreed nodes/edges names.
+CREATE TABLE IF NOT EXISTS nodes (
+  id TEXT PRIMARY KEY,
+  type TEXT NOT NULL,
+  name TEXT NOT NULL,
+  source_document_id TEXT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+  confidence DOUBLE PRECISION NOT NULL CHECK (confidence >= 0 AND confidence <= 1),
+  pagerank DOUBLE PRECISION,
+  betweenness DOUBLE PRECISION,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS edges (
+  id TEXT PRIMARY KEY,
+  source_node_id TEXT NOT NULL REFERENCES nodes(id) ON DELETE CASCADE,
+  target_node_id TEXT NOT NULL REFERENCES nodes(id) ON DELETE CASCADE,
+  relationship_type TEXT NOT NULL,
+  source_document_id TEXT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CHECK (source_node_id <> target_node_id)
+);
+
 CREATE TABLE IF NOT EXISTS cases (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
@@ -77,6 +101,9 @@ CREATE INDEX IF NOT EXISTS relationships_source_idx
 
 CREATE INDEX IF NOT EXISTS relationships_target_idx
   ON relationships(target);
+
+CREATE INDEX IF NOT EXISTS edges_source_idx ON edges(source_node_id);
+CREATE INDEX IF NOT EXISTS edges_target_idx ON edges(target_node_id);
 
 CREATE INDEX IF NOT EXISTS audit_logs_created_at_idx
   ON audit_logs(created_at);

@@ -23,6 +23,12 @@ const getEntityRelationships = asyncHandler(async (req, res) => {
   return res.json({ edges });
 });
 
+const getNodeDetail = asyncHandler(async (req, res) => {
+  const detail = await graphService.getNodeDetail(req.params.id);
+  if (!detail) return res.status(404).json({ message: 'Node not found.', status: 404 });
+  return res.json(detail);
+});
+
 const createRelationship = asyncHandler(async (req, res) => {
   const edge = await graphService.createRelationship(req.body);
   return res.status(201).json({ edge });
@@ -31,5 +37,6 @@ const createRelationship = asyncHandler(async (req, res) => {
 module.exports = {
   getGraph,
   getEntityRelationships,
+  getNodeDetail,
   createRelationship
 };

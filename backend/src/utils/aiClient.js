@@ -65,7 +65,7 @@ const localExtract = (documentId, content) => {
         id: `${documentId}-edge-${sourceIndex}-${targetIndex}`,
         source: entities[sourceIndex].id,
         target: entities[targetIndex].id,
-        relationship_type: 'co_occurs',
+        relationship_type: 'co-occurred',
         source_document_id: documentId
       });
     }
@@ -75,7 +75,7 @@ const localExtract = (documentId, content) => {
     status: 'local_rule_based',
     document_id: documentId,
     entities,
-    relationships
+    links: relationships
   };
 };
 
@@ -102,7 +102,12 @@ const callRemoteModel = async (url, documentId, content, input = {}) => {
       throw new Error(`AI service returned HTTP ${response.status}.`);
     }
 
-    return await response.json();
+    const result = await response.json();
+    return {
+      ...result,
+      relationships: result.relationships || result.links || [],
+      links: result.links || result.relationships || []
+    };
   } finally {
     clearTimeout(timeout);
   }
@@ -149,7 +154,12 @@ const callAiModel = async ({
     throw new Error('AI_SERVICE_URL is required for PDF and image uploads.');
   }
 
-  return localExtract(documentId, content);
+  const result = localExtract(documentId, content);
+  return {
+    ...result,
+    relationships: result.relationships || result.links || [],
+    links: result.links || result.relationships || []
+  };
 };
 
 module.exports = { callAiModel, localExtract };

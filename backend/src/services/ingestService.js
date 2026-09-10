@@ -76,7 +76,12 @@ const persistPipeline = async (document, entities, relationships) => {
       await client.query(
         `INSERT INTO entities
            (id, type, name, source_document_id, confidence, pagerank, betweenness)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         ON CONFLICT (id) DO UPDATE SET
+           name = EXCLUDED.name,
+           confidence = GREATEST(entities.confidence, EXCLUDED.confidence),
+           pagerank = EXCLUDED.pagerank,
+           betweenness = EXCLUDED.betweenness`,
         [
           entity.id,
           entity.type,
@@ -101,7 +106,7 @@ const persistPipeline = async (document, entities, relationships) => {
     await client.query('COMMIT');
     return {
       document,
-      graph: { nodes: scoredEntities, edges: relationships },
+      graph: { nodes: scoredEntities, links: relationships, edges: relationships },
       analytics: {
         pagerank,
         betweenness,

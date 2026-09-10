@@ -2,6 +2,7 @@
 
 import csv
 import io
+import re
 from typing import Dict, List
 
 
@@ -31,7 +32,7 @@ def parse_cdr(content: str, document_id: str) -> Dict:
         if not phone:
             raise ValueError("CDR caller and receiver values cannot be empty")
         if phone not in entity_ids:
-            entity_id = f"{document_id}-phone-{len(entity_ids)}"
+            entity_id = f"n-phone-{re.sub(r'[^a-zA-Z0-9]+', '-', phone).strip('-')}"
             entity_ids[phone] = entity_id
             entities.append(
                 {
@@ -55,7 +56,7 @@ def parse_cdr(content: str, document_id: str) -> Dict:
                 "id": f"{document_id}-call-{index}",
                 "source": caller_id,
                 "target": receiver_id,
-                "relationship_type": "called",
+                "relationship_type": "co-occurred",
                 "source_document_id": document_id,
                 "metadata": {
                     "timestamp": row.get("timestamp", ""),
