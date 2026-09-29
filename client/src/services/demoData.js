@@ -1,0 +1,276 @@
+export const DEMO_USERS = {
+  'admin@ertmac.demo': { _id: '6571a0000000000000000001', name: 'Admin Kumar', email: 'admin@ertmac.demo', role: 'ADMIN', department: 'IT & Digital', status: 'ACTIVE' },
+  'engineer@ertmac.demo': { _id: '6571a0000000000000000002', name: 'Rajesh Engineer', email: 'engineer@ertmac.demo', role: 'ENGINEER', department: 'Drilling Engineering', status: 'ACTIVE' },
+  'manager@ertmac.demo': { _id: '6571a0000000000000000003', name: 'Manager Singh', email: 'manager@ertmac.demo', role: 'MANAGER', department: 'Drilling Operations', status: 'ACTIVE' },
+};
+
+export const DEMO_WELLS = [
+  {
+    _id: '6571b0000000000000000101', wellName: 'WELL-101', field: 'Deohal Field', operator: 'Oil India Limited',
+    latitude: 27.3850, longitude: 95.3200, status: 'DRILLING',
+    currentDepth: 2820, targetDepth: 3500, currentFormation: 'Formation-X',
+    riskLevel: 'HIGH', spudDate: '2024-08-01', isActive: true,
+    formations: [
+      { name: 'Alluvium', topDepth: 0, bottomDepth: 250, lithology: 'Sand & Clay' },
+      { name: 'Tipam Formation', topDepth: 250, bottomDepth: 900, lithology: 'Sandstone' },
+      { name: 'Barail Formation', topDepth: 900, bottomDepth: 1800, lithology: 'Sandstone/Shale' },
+      { name: 'Kopili Formation', topDepth: 1800, bottomDepth: 2500, lithology: 'Shale' },
+      { name: 'Formation-X', topDepth: 2500, bottomDepth: 3000, lithology: 'Limestone/Dolomite', description: 'Target carbonate reservoir' },
+      { name: 'Formation-Y', topDepth: 3000, bottomDepth: 3500, lithology: 'Limestone' },
+    ],
+    trajectory: { type: 'DIRECTIONAL', inclination: 12.5, azimuth: 245, kickoffPoint: 1200 },
+    description: 'Active directional well targeting Formation-X carbonate reservoir.',
+  },
+  {
+    _id: '6571b0000000000000000107', wellName: 'WELL-107', field: 'Deohal Field', operator: 'Oil India Limited',
+    latitude: 27.3920, longitude: 95.3420, status: 'DRILLING',
+    currentDepth: 1950, targetDepth: 3200, currentFormation: 'Kopili Formation',
+    riskLevel: 'MEDIUM', spudDate: '2024-10-01', isActive: true,
+    formations: [
+      { name: 'Alluvium', topDepth: 0, bottomDepth: 248, lithology: 'Sand & Clay' },
+      { name: 'Tipam Formation', topDepth: 248, bottomDepth: 895, lithology: 'Sandstone' },
+      { name: 'Barail Formation', topDepth: 895, bottomDepth: 1795, lithology: 'Sandstone/Shale' },
+      { name: 'Kopili Formation', topDepth: 1795, bottomDepth: 2495, lithology: 'Shale' },
+      { name: 'Formation-X', topDepth: 2495, bottomDepth: 3200, lithology: 'Limestone/Dolomite' },
+    ],
+    trajectory: { type: 'VERTICAL', inclination: 0, azimuth: 0 },
+    description: 'Active well drilling through Kopili Formation.',
+  },
+  {
+    _id: '6571b0000000000000000110', wellName: 'WELL-110', field: 'Deohal Field', operator: 'Oil India Limited',
+    latitude: 27.3710, longitude: 95.2960, status: 'DRILLING',
+    currentDepth: 3100, targetDepth: 3800, currentFormation: 'Formation-X',
+    riskLevel: 'CRITICAL', spudDate: '2024-05-20', isActive: true,
+    formations: [
+      { name: 'Alluvium', topDepth: 0, bottomDepth: 258, lithology: 'Sand & Clay' },
+      { name: 'Tipam Formation', topDepth: 258, bottomDepth: 908, lithology: 'Sandstone' },
+      { name: 'Barail Formation', topDepth: 908, bottomDepth: 1808, lithology: 'Sandstone/Shale' },
+      { name: 'Kopili Formation', topDepth: 1808, bottomDepth: 2508, lithology: 'Shale' },
+      { name: 'Formation-X', topDepth: 2508, bottomDepth: 3200, lithology: 'Limestone' },
+      { name: 'Formation-Y', topDepth: 3200, bottomDepth: 3800, lithology: 'Limestone' },
+    ],
+    trajectory: { type: 'DIRECTIONAL', inclination: 18.2, azimuth: 190, kickoffPoint: 1500 },
+    description: 'Active drilling. Approaching high-pressure zone in Formation-X.',
+  },
+  {
+    _id: '6571b0000000000000000102', wellName: 'WELL-102', field: 'Deohal Field', operator: 'Oil India Limited',
+    latitude: 27.3760, longitude: 95.3310, status: 'COMPLETED',
+    currentDepth: 3420, targetDepth: 3420, currentFormation: 'Formation-Y',
+    riskLevel: 'LOW', spudDate: '2023-03-15', completionDate: '2023-11-20', isActive: true,
+    formations: [
+      { name: 'Alluvium', topDepth: 0, bottomDepth: 240, lithology: 'Sand & Clay' },
+      { name: 'Tipam Formation', topDepth: 240, bottomDepth: 890, lithology: 'Sandstone' },
+      { name: 'Barail Formation', topDepth: 890, bottomDepth: 1780, lithology: 'Sandstone/Shale' },
+      { name: 'Kopili Formation', topDepth: 1780, bottomDepth: 2480, lithology: 'Shale' },
+      { name: 'Formation-X', topDepth: 2480, bottomDepth: 3000, lithology: 'Limestone/Dolomite' },
+      { name: 'Formation-Y', topDepth: 3000, bottomDepth: 3420, lithology: 'Limestone' },
+    ],
+    description: 'Completed well producing from Formation-Y.',
+  },
+  {
+    _id: '6571b0000000000000000103', wellName: 'WELL-103', field: 'Deohal Field', operator: 'Oil India Limited',
+    latitude: 27.3660, longitude: 95.3380, status: 'COMPLETED',
+    currentDepth: 3300, targetDepth: 3300, currentFormation: 'Formation-Y',
+    riskLevel: 'MEDIUM', spudDate: '2022-06-10', completionDate: '2023-01-15', isActive: true,
+    formations: [
+      { name: 'Alluvium', topDepth: 0, bottomDepth: 260, lithology: 'Sand & Clay' },
+      { name: 'Tipam Formation', topDepth: 260, bottomDepth: 910, lithology: 'Sandstone' },
+      { name: 'Barail Formation', topDepth: 910, bottomDepth: 1820, lithology: 'Sandstone/Shale' },
+      { name: 'Kopili Formation', topDepth: 1820, bottomDepth: 2510, lithology: 'Shale' },
+      { name: 'Formation-X', topDepth: 2510, bottomDepth: 3020, lithology: 'Limestone/Dolomite' },
+      { name: 'Formation-Y', topDepth: 3020, bottomDepth: 3300, lithology: 'Limestone' },
+    ],
+    description: 'Key offset well. Formation-X zone highly fractured with mud loss history.',
+  },
+  {
+    _id: '6571b0000000000000000104', wellName: 'WELL-104', field: 'Deohal Field', operator: 'Oil India Limited',
+    latitude: 27.3520, longitude: 95.3080, status: 'SUSPENDED',
+    currentDepth: 2950, targetDepth: 3500, currentFormation: 'Formation-X',
+    riskLevel: 'HIGH', spudDate: '2023-09-01', isActive: true,
+    formations: [
+      { name: 'Alluvium', topDepth: 0, bottomDepth: 255, lithology: 'Sand & Clay' },
+      { name: 'Tipam Formation', topDepth: 255, bottomDepth: 905, lithology: 'Sandstone' },
+      { name: 'Barail Formation', topDepth: 905, bottomDepth: 1790, lithology: 'Sandstone/Shale' },
+      { name: 'Kopili Formation', topDepth: 1790, bottomDepth: 2490, lithology: 'Shale' },
+      { name: 'Formation-X', topDepth: 2490, bottomDepth: 3500, lithology: 'Limestone' },
+    ],
+    description: 'Suspended due to high-pressure kick at 2900m in Formation-X.',
+  },
+  {
+    _id: '6571b0000000000000000105', wellName: 'WELL-105', field: 'Nagapathar Field', operator: 'Oil India Limited',
+    latitude: 27.4120, longitude: 95.3650, status: 'PRODUCING',
+    currentDepth: 3150, targetDepth: 3150, currentFormation: 'Formation-Z',
+    riskLevel: 'LOW', spudDate: '2021-04-20', completionDate: '2022-02-28', isActive: true,
+    formations: [
+      { name: 'Alluvium', topDepth: 0, bottomDepth: 270, lithology: 'Sand & Clay' },
+      { name: 'Tipam Formation', topDepth: 270, bottomDepth: 920, lithology: 'Sandstone' },
+      { name: 'Barail Formation', topDepth: 920, bottomDepth: 1850, lithology: 'Sandstone/Shale' },
+      { name: 'Kopili Formation', topDepth: 1850, bottomDepth: 2550, lithology: 'Shale' },
+      { name: 'Formation-Z', topDepth: 2550, bottomDepth: 3150, lithology: 'Limestone' },
+    ],
+    description: 'Producing well from Formation-Z.',
+  },
+  {
+    _id: '6571b0000000000000000106', wellName: 'WELL-106', field: 'Nagapathar Field', operator: 'Oil India Limited',
+    latitude: 27.4280, longitude: 95.2980, status: 'PRODUCING',
+    currentDepth: 2980, targetDepth: 2980, currentFormation: 'Formation-X',
+    riskLevel: 'LOW', spudDate: '2020-07-15', completionDate: '2021-03-10', isActive: true,
+    formations: [], description: 'Producing well with minor historical loss.',
+  },
+  {
+    _id: '6571b0000000000000000108', wellName: 'WELL-108', field: 'Moran Field', operator: 'Oil India Limited',
+    latitude: 27.4520, longitude: 95.2650, status: 'ABANDONED',
+    currentDepth: 2100, targetDepth: 3000, currentFormation: 'Barail Formation',
+    riskLevel: 'LOW', spudDate: '2019-01-10', completionDate: '2019-09-20', isActive: true,
+    formations: [], description: 'Abandoned at 2100m due to mechanical failure.',
+  },
+  {
+    _id: '6571b0000000000000000109', wellName: 'WELL-109', field: 'Moran Field', operator: 'Oil India Limited',
+    latitude: 27.3400, longitude: 95.2800, status: 'TESTING',
+    currentDepth: 3050, targetDepth: 3050, currentFormation: 'Formation-X',
+    riskLevel: 'MEDIUM', spudDate: '2023-11-01', completionDate: '2024-06-15', isActive: true,
+    formations: [], description: 'Under DST testing in Formation-X zone.',
+  },
+];
+
+export const DEMO_EVENTS = [
+  {
+    _id: '6571d0000000000000000001', wellId: '6571b0000000000000000103',
+    eventType: 'MUD_LOSS', depth: 2850, formation: 'Formation-X', severity: 'HIGH',
+    description: 'Partial mud loss detected while drilling through Formation-X carbonate zone at 2850m. Loss rate: 25-30 bbl/hr. Natural fracturing of carbonate observed.',
+    cause: 'Natural fracture system in Formation-X carbonate zone.',
+    mitigation: 'Drilling stopped. LCM pill (50 bbl fibrous mix) spotted. Pump rates reduced. Mud weight maintained at 1.32 SG.',
+    outcome: 'Drilling resumed after 6.5 hours NPT. Modified mud program implemented.',
+    nptHours: 6.5,
+    parameters: { torque: 18.5, rpm: 45, wob: 180, rop: 2.8, mudWeight: 1.32, pressure: 185 },
+    verificationStatus: 'APPROVED',
+  },
+  {
+    _id: '6571d0000000000000000002', wellId: '6571b0000000000000000103',
+    eventType: 'HIGH_TORQUE', depth: 2880, formation: 'Formation-X', severity: 'MEDIUM',
+    description: 'Torque spike from 14 to 22 kNm at 2880m. Natural fracture encounter.',
+    cause: 'Natural fracture encounter in Formation-X.',
+    mitigation: 'Reduced WOB, increased circulation. Normal drilling resumed after 2.5 hrs.',
+    outcome: 'Normal drilling after 2.5 hours.', nptHours: 2.5,
+    parameters: { torque: 22.0, rpm: 40, wob: 150, rop: 1.5, mudWeight: 1.32, pressure: 192 },
+    verificationStatus: 'APPROVED',
+  },
+  {
+    _id: '6571d0000000000000000003', wellId: '6571b0000000000000000104',
+    eventType: 'KICK', depth: 2900, formation: 'Formation-X', severity: 'CRITICAL',
+    description: 'Well kick at 2900m in Formation-X. 15 bbl kick volume. Well shut-in. SICP 380 psi, SIDPP 320 psi.',
+    cause: 'Underbalanced condition in over-pressured Formation-X.',
+    mitigation: 'Immediate well shut-in. Driller method applied. Kill mud weight increased to 1.45 SG.',
+    outcome: 'Well killed after 18 hours. Operations suspended.', nptHours: 18.0,
+    parameters: { mudWeight: 1.38, pressure: 380 },
+    verificationStatus: 'APPROVED',
+  },
+  {
+    _id: '6571d0000000000000000004', wellId: '6571b0000000000000000103',
+    eventType: 'LOST_CIRCULATION', depth: 2760, formation: 'Formation-X', severity: 'MEDIUM',
+    description: 'Minor lost circulation at formation top. Loss rate 8-10 bbl/hr.',
+    cause: 'Entry into Formation-X fracture zone.',
+    mitigation: 'Increased LCM concentration.', outcome: 'Resolved within 1.5 hours.', nptHours: 1.5,
+    verificationStatus: 'APPROVED',
+  },
+  {
+    _id: '6571d0000000000000000005', wellId: '6571b0000000000000000103',
+    eventType: 'STUCK_PIPE', depth: 2920, formation: 'Formation-X', severity: 'HIGH',
+    description: 'Pipe differentially stuck at 2920m in Formation-X. Differential pressure sticking.',
+    cause: 'Differential pressure sticking against permeable fractures.',
+    mitigation: 'Diesel oil pill spotted. Worked pipe. Freed after 4 hours.',
+    outcome: 'Pipe freed. NPT: 4 hours.', nptHours: 4.0,
+    verificationStatus: 'APPROVED',
+  },
+];
+
+export const DEMO_RISK_ALERTS = [
+  {
+    _id: '6571e0000000000000000001',
+    activeWellId: '6571b0000000000000000101', offsetWellId: '6571b0000000000000000103',
+    activeWellName: 'WELL-101', offsetWellName: 'WELL-103',
+    currentDepth: 2820, historicalDepth: 2850, depthDifference: 30,
+    distance: 2.1, formationSimilarity: 'EXACT_MATCH',
+    riskLevel: 'HIGH', riskScore: 88, eventType: 'MUD_LOSS',
+    reason: 'Active well WELL-101 is at 2820m depth in Formation-X, only 30m away from historical MUD_LOSS incident at 2850m in offset well WELL-103 (2.1km away). High risk of severe mud loss.',
+    evidence: [
+      { label: 'Offset Well', value: 'WELL-103 (2.1 km distance)' },
+      { label: 'Historical Event', value: 'MUD_LOSS at 2850m (NPT: 6.5 hrs)' },
+      { label: 'Formation Match', value: 'Formation-X (Limestone/Dolomite)' },
+    ],
+    status: 'OPEN', isActive: true,
+  },
+  {
+    _id: '6571e0000000000000000002',
+    activeWellId: '6571b0000000000000000110', offsetWellId: '6571b0000000000000000104',
+    activeWellName: 'WELL-110', offsetWellName: 'WELL-104',
+    currentDepth: 3100, historicalDepth: 2900, depthDifference: 200,
+    distance: 1.8, formationSimilarity: 'EXACT_MATCH',
+    riskLevel: 'CRITICAL', riskScore: 94, eventType: 'KICK',
+    reason: 'Active well WELL-110 drilling in overpressured Formation-X, offset well WELL-104 experienced gas kick requiring shut-in.',
+    evidence: [
+      { label: 'Offset Well', value: 'WELL-104 (1.8 km distance)' },
+      { label: 'Historical Event', value: 'KICK at 2900m (NPT: 18.0 hrs)' },
+      { label: 'Formation Match', value: 'Formation-X' },
+    ],
+    status: 'OPEN', isActive: true,
+  },
+];
+
+export const DEMO_REPORTS = [
+  {
+    _id: '6571c0000000000000000001', title: 'WELL-103 Daily Drilling Report — Formation-X Interval',
+    fileName: 'well103-ddr-demo.pdf', fileSize: 245000, mimeType: 'application/pdf',
+    wellId: '6571b0000000000000000103', wellName: 'WELL-103', reportType: 'DAILY_DRILLING_REPORT',
+    extractionStatus: 'COMPLETED', verificationStatus: 'PARTIALLY_APPROVED',
+    pageCount: 14, isDemo: true,
+    extractedData: [
+      { eventType: 'MUD_LOSS', depth: 2850, formation: 'Formation-X', severity: 'HIGH', description: 'Partial mud loss at 2850m in Formation-X carbonate. Loss rate 25-30 bbl/hr.', verificationStatus: 'APPROVED' },
+      { eventType: 'HIGH_TORQUE', depth: 2880, formation: 'Formation-X', severity: 'MEDIUM', description: 'Torque spike from 14 to 22 kNm at 2880m.', verificationStatus: 'APPROVED' },
+    ],
+  },
+];
+
+export const DEMO_READINGS = Array.from({ length: 30 }, (_, idx) => {
+  const depth = 2820 - (29 - idx) * 0.5;
+  return {
+    _id: `read-${idx}`,
+    timestamp: new Date(Date.now() - (30 - idx) * 30000).toISOString(),
+    depth: parseFloat(depth.toFixed(1)),
+    torque: parseFloat((17.5 + Math.sin(idx) * 1.8).toFixed(1)),
+    rpm: 50,
+    wob: parseFloat((170 + Math.cos(idx) * 6).toFixed(1)),
+    rop: parseFloat((3.0 + Math.sin(idx * 0.5) * 0.6).toFixed(2)),
+    mudWeight: 1.32,
+    mudFlow: 1200,
+    pressure: parseFloat((182 + idx * 0.2).toFixed(1)),
+    temperature: 78,
+    hookLoad: 120,
+  };
+});
+
+export const DEMO_OVERVIEW = {
+  metrics: {
+    totalWells: 10,
+    activeWells: 3,
+    highRiskWells: 2,
+    openAlerts: 2,
+    ackAlerts: 1,
+    totalEvents: 5,
+    pendingReviews: 1,
+    totalUsers: 5,
+  },
+  riskDistribution: [
+    { _id: 'CRITICAL', count: 1 },
+    { _id: 'HIGH', count: 2 },
+    { _id: 'MEDIUM', count: 3 },
+    { _id: 'LOW', count: 4 },
+  ],
+  eventTypeDistribution: [
+    { _id: 'MUD_LOSS', count: 2 },
+    { _id: 'HIGH_TORQUE', count: 2 },
+    { _id: 'KICK', count: 1 },
+    { _id: 'LOST_CIRCULATION', count: 1 },
+    { _id: 'STUCK_PIPE', count: 1 },
+  ],
+};

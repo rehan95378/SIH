@@ -1,0 +1,13 @@
+{
+  "name": "ertmac-nwis-scripts",
+  "version": "1.0.0",
+  "description": "Seed and utility scripts for eRTMAC-NWIS",
+  "scripts": {
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.6.1",
+    "mongoose": "^8.24.4"
+  }
+}
